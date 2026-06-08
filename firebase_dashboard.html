@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IBN SINA — Stock Sync</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:       #f5f6f8;
+            --surface:  #ffffff;
+            --surface2: #f0f2f5;
+            --border:   #e4e7ec;
+            --accent:   #2563eb;
+            --accent-light: #eff4ff;
+            --accent-dark:  #1d4ed8;
+            --text:     #111827;
+            --muted:    #6b7280;
+            --muted2:   #9ca3af;
+            --green:    #16a34a;
+            --green-bg: #f0fdf4;
+            --green-border: #bbf7d0;
+            --red:      #dc2626;
+            --red-bg:   #fef2f2;
+            --red-border: #fecaca;
+            --amber:    #d97706;
+            --amber-bg: #fffbeb;
+            --amber-border: #fde68a;
+            --mono:     'JetBrains Mono', monospace;
+            --sans:     'Plus Jakarta Sans', sans-serif;
+            --radius:   12px;
+            --shadow:   0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 2.5rem 1rem 4rem;
+        }
+
+        .wrap {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        /* HEADER */
+        .header {
+            margin-bottom: 2rem;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .logo {
+            width: 38px; height: 38px;
+            background: var(--accent);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.25);
+        }
+
+        .logo-text {
+            flex: 1;
+        }
+
+        .logo-text .brand {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--muted);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .logo-text h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--green-bg);
+            border: 1px solid var(--green-border);
+            border-radius: 999px;
+            padding: 3px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--green);
+        }
+
+        .status-pill .dot {
+            width: 5px; height: 5px;
+            background: var(--green);
+            border-radius: 50%;
+        }
+
+        /* CARD */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .card-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--muted);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        /* SELECT */
+        .select-wrap { position: relative; }
+
+        .select-wrap::after {
+            content: '';
+            position: absolute;
+            right: 12px; top: 50%;
+            transform: translateY(-50%);
+            width: 0; height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 5px solid var(--muted2);
+            pointer-events: none;
+        }
+
+        select {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 12px;
+            font-weight: 500;
+            padding: 10px 32px 10px 12px;
+            appearance: none;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+
+        /* DROP ZONE */
+        .drop-zone {
+            border: 1.5px dashed var(--border);
+            border-radius: 10px;
+            padding: 1.8rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.18s;
+            background: var(--surface2);
+        }
+
+        .drop-zone:hover, .drop-zone.drag-over {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        .dz-icon {
+            width: 40px; height: 40px;
+            margin: 0 auto 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            box-shadow: var(--shadow);
+        }
+
+        .dz-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 3px;
+        }
+
+        .dz-sub {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--muted2);
+        }
+
+        .file-pill {
+            display: none;
+            margin-top: 10px;
+            align-items: center;
+            gap: 7px;
+            background: var(--green-bg);
+            border: 1px solid var(--green-border);
+            border-radius: 8px;
+            padding: 7px 11px;
+        }
+
+        .file-pill-dot {
+            width: 5px; height: 5px;
+            background: var(--green);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .file-pill span {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        /* SYNC BUTTON */
+        #btn-sync {
+            width: 100%;
+            padding: 13px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            font-family: var(--sans);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            margin-top: 10px;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.25);
+            letter-spacing: -0.01em;
+        }
+
+        #btn-sync:hover:not(:disabled) {
+            background: var(--accent-dark);
+            box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+            transform: translateY(-1px);
+        }
+
+        #btn-sync:active:not(:disabled) { transform: translateY(0); }
+
+        #btn-sync:disabled {
+            background: var(--surface2);
+            color: var(--muted2);
+            cursor: not-allowed;
+            border: 1px solid var(--border);
+            box-shadow: none;
+        }
+
+        /* PROGRESS */
+        .progress-panel {
+            display: none;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .progress-header .plabel {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--muted);
+        }
+
+        .progress-header .ppct {
+            font-family: var(--mono);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 4px;
+            background: var(--surface2);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 99px;
+            width: 0%;
+            transition: width 0.35s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        /* RESULT */
+        .result-panel {
+            display: none;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .stat-box {
+            border-radius: 10px;
+            padding: 14px 12px;
+            text-align: center;
+        }
+
+        .stat-box.s-ok   { background: var(--green-bg);  border: 1px solid var(--green-border); }
+        .stat-box.s-warn { background: var(--amber-bg);  border: 1px solid var(--amber-border); }
+
+        .stat-num {
+            font-family: var(--mono);
+            font-size: 28px;
+            font-weight: 600;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-box.s-ok   .stat-num { color: var(--green); }
+        .stat-box.s-warn .stat-num { color: var(--amber); }
+
+        .stat-lbl {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .stat-box.s-ok   .stat-lbl { color: var(--green); opacity: 0.7; }
+        .stat-box.s-warn .stat-lbl { color: var(--amber); opacity: 0.7; }
+
+        .nf-section { display: none; margin-bottom: 10px; }
+
+        .nf-toggle {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--amber);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 0;
+            user-select: none;
+        }
+
+        .nf-toggle::before { content: '▶'; font-size: 8px; transition: transform 0.18s; }
+        .nf-toggle.open::before { transform: rotate(90deg); }
+
+        .nf-codes { display: none; flex-wrap: wrap; gap: 5px; padding: 7px 0 3px; }
+        .nf-codes.open { display: flex; }
+
+        .nf-tag {
+            background: var(--amber-bg);
+            border: 1px solid var(--amber-border);
+            color: var(--amber);
+            font-family: var(--mono);
+            font-size: 10px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 5px;
+        }
+
+        .divider { height: 1px; background: var(--border); margin: 10px 0; }
+
+        .log-box {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            max-height: 110px;
+            overflow-y: auto;
+            font-family: var(--mono);
+            font-size: 10px;
+            line-height: 1.9;
+            color: var(--muted);
+        }
+
+        .log-ok   { color: var(--green); }
+        .log-warn { color: var(--amber); }
+        .log-err  { color: var(--red); }
+
+        .spin {
+            display: inline-block;
+            width: 12px; height: 12px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: rot 0.6s linear infinite;
+            vertical-align: middle;
+            margin-right: 7px;
+        }
+
+        @keyframes rot { to { transform: rotate(360deg); } }
+
+        #csv-file-input { display: none; }
+
+        /* MODAL */
+        #modal-overlay {
+            display: none;
+            position: fixed; inset: 0; z-index: 999;
+            background: rgba(17,24,39,0.5);
+            backdrop-filter: blur(4px);
+            align-items: center; justify-content: center;
+            padding: 1.5rem;
+        }
+
+        #modal-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.8rem;
+            max-width: 360px; width: 100%;
+            box-shadow: var(--shadow-md);
+            animation: modalIn 0.2s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        @keyframes modalIn {
+            from { opacity:0; transform: scale(0.9) translateY(10px); }
+            to   { opacity:1; transform: scale(1) translateY(0); }
+        }
+
+        #modal-icon {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            margin-bottom: 1rem;
+        }
+
+        #modal-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+        }
+
+        #modal-msg {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--muted);
+            line-height: 1.7;
+            margin-bottom: 1.2rem;
+            white-space: pre-line;
+        }
+
+        #modal-btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-family: var(--sans);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+
+        #modal-btn:hover { opacity: 0.88; }
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-top">
+            <div class="logo">💊</div>
+            <div class="logo-text">
+                <div class="brand">Ibn Sina Pharmaceutical</div>
+                <h1>Stock Sync Tool</h1>
+            </div>
+            <div class="status-pill">
+                <div class="dot"></div>
+                Firebase
+            </div>
+        </div>
+    </div>
+
+    <!-- CATEGORY -->
+    <div class="card">
+        <div class="card-label">Default Category</div>
+        <div class="select-wrap">
+            <select id="ddl-category">
+                <option value="PHARMA">PHARMA</option>
+                <option value="HERBAL">HERBAL</option>
+                <option value="OPTHALMIC">OPTHALMIC</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- FILE -->
+    <div class="card">
+        <div class="card-label">CSV ফাইল</div>
+        <div class="drop-zone" id="drop-zone">
+            <div class="dz-icon">📂</div>
+            <div class="dz-title">ফাইল ড্রপ করুন বা ক্লিক করুন</div>
+            <div class="dz-sub">Google Sheet export · .csv format</div>
+        </div>
+        <div class="file-pill" id="file-loaded">
+            <div class="file-pill-dot"></div>
+            <span id="file-info">—</span>
+        </div>
+        <input type="file" id="csv-file-input" accept=".csv">
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-panel" id="progress-card">
+        <div class="progress-header">
+            <span class="plabel" id="progress-text">লোড হচ্ছে...</span>
+            <span class="ppct" id="progress-pct">0%</span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="result-panel" id="result-card">
+        <div class="stats-row">
+            <div class="stat-box s-ok">
+                <div class="stat-num" id="stat-updated">0</div>
+                <div class="stat-lbl">Updated</div>
+            </div>
+            <div class="stat-box s-warn">
+                <div class="stat-num" id="stat-notfound">0</div>
+                <div class="stat-lbl">Not Found</div>
+            </div>
+        </div>
+        <div class="nf-section" id="not-found-list">
+            <div class="nf-toggle" id="nf-toggle">পাওয়া যায়নি এমন কোড</div>
+            <div class="nf-codes" id="not-found-codes"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="log-box" id="log-area"></div>
+    </div>
+
+    <!-- SYNC BUTTON -->
+    <button id="btn-sync" disabled>Sync করুন</button>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay">
+    <div id="modal-box">
+        <div id="modal-icon">✓</div>
+        <div id="modal-title">সম্পন্ন</div>
+        <div id="modal-msg"></div>
+        <button id="modal-btn">ঠিক আছে</button>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+<script>
+    const firebaseConfig = { databaseURL: "https://shofiul4686-default-rtdb.firebaseio.com" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let parsedData = [];
+
+    const btnSync       = document.getElementById('btn-sync');
+    const dropZone      = document.getElementById('drop-zone');
+    const fileInput     = document.getElementById('csv-file-input');
+    const fileLoaded    = document.getElementById('file-loaded');
+    const fileInfo      = document.getElementById('file-info');
+    const progressCard  = document.getElementById('progress-card');
+    const progressText  = document.getElementById('progress-text');
+    const progressPct   = document.getElementById('progress-pct');
+    const progressFill  = document.getElementById('progress-fill');
+    const resultCard    = document.getElementById('result-card');
+    const statUpdated   = document.getElementById('stat-updated');
+    const statNotFound  = document.getElementById('stat-notfound');
+    const notFoundList  = document.getElementById('not-found-list');
+    const notFoundCodes = document.getElementById('not-found-codes');
+    const logArea       = document.getElementById('log-area');
+    const ddlCategory   = document.getElementById('ddl-category');
+    const nfToggle      = document.getElementById('nf-toggle');
+
+    // Not found toggle
+    nfToggle.addEventListener('click', () => {
+        nfToggle.classList.toggle('open');
+        notFoundCodes.classList.toggle('open');
+    });
+
+    // ── Custom Modal ──
+    const modalOverlay = document.getElementById('modal-overlay');
+    const modalIcon    = document.getElementById('modal-icon');
+    const modalTitle   = document.getElementById('modal-title');
+    const modalMsg     = document.getElementById('modal-msg');
+    const modalBtn     = document.getElementById('modal-btn');
+
+    function showModal(icon, title, msg, type = 'ok') {
+        const colors = { ok: '#16a34a', warn: '#d97706', err: '#dc2626' };
+        const bgColors = { ok: '#f0fdf4', warn: '#fffbeb', err: '#fef2f2' };
+        const borderColors = { ok: '#bbf7d0', warn: '#fde68a', err: '#fecaca' };
+        modalIcon.textContent = icon;
+        modalIcon.style.background = bgColors[type];
+        modalIcon.style.borderColor = borderColors[type];
+        modalIcon.style.color = colors[type];
+        modalTitle.textContent = title;
+        modalMsg.textContent = msg;
+        modalBtn.style.background = colors[type];
+        modalBtn.style.color = '#fff';
+        modalOverlay.style.display = 'flex';
+        modalOverlay.style.alignItems = 'center';
+        modalOverlay.style.justifyContent = 'center';
+        // re-trigger animation
+        const box = document.getElementById('modal-box');
+        box.style.animation = 'none';
+        box.offsetHeight;
+        box.style.animation = 'modalIn 0.22s cubic-bezier(0.34,1.56,0.64,1)';
+    }
+
+    modalBtn.addEventListener('click', () => { modalOverlay.style.display = 'none'; });
+    modalOverlay.addEventListener('click', (e) => { if(e.target === modalOverlay) modalOverlay.style.display = 'none'; });
+
+        function log(msg, type = '') {
+        const line = document.createElement('div');
+        if (type) line.className = 'log-' + type;
+        line.textContent = msg;
+        logArea.appendChild(line);
+        logArea.scrollTop = logArea.scrollHeight;
+    }
+
+    function setProgress(pct, text) {
+        progressFill.style.width = pct + '%';
+        progressPct.textContent = pct + '%';
+        if (text) progressText.textContent = text;
+    }
+
+    function parseCSV(file) {
+        return new Promise((resolve, reject) => {
+            Papa.parse(file, {
+                header: false,
+                skipEmptyLines: true,
+                complete: (res) => {
+                    const rows = res.data;
+                    let headerIndex = -1;
+                    for (let i = 0; i < rows.length; i++) {
+                        const rowStr = rows[i].join(',').toLowerCase();
+                        if (rowStr.includes('item id') || rowStr.includes('item_id') || rowStr.includes('itemid') || rowStr.includes('category')) {
+                            headerIndex = i;
+                            break;
+                        }
+                    }
+                    if (headerIndex === -1) {
+                        reject(new Error('CSV-এ "Item Id" কলাম খুঁজে পাওয়া যায়নি।'));
+                        return;
+                    }
+                    const headers = rows[headerIndex].map(h => String(h).trim());
+                    const dataRows = rows.slice(headerIndex + 1);
+                    const result = dataRows
+                        .filter(row => row.some(cell => String(cell).trim() !== ''))
+                        .map(row => {
+                            const obj = {};
+                            headers.forEach((h, i) => { obj[h] = row[i] !== undefined ? String(row[i]).trim() : ''; });
+                            return obj;
+                        });
+                    resolve(result);
+                },
+                error: (err) => reject(err)
+            });
+        });
+    }
+
+    async function handleFile(file) {
+        if (!file || !file.name.endsWith('.csv')) {
+            showModal('⚠', 'ফাইল সমস্যা', 'শুধু .csv ফাইল সাপোর্ট করে।', 'warn');
+            return;
+        }
+        try {
+            parsedData = await parseCSV(file);
+            parsedData = parsedData.filter(r => r['Item Id'] && String(r['Item Id']).trim());
+            fileInfo.textContent = `${file.name}  ·  ${parsedData.length} টি আইটেম`;
+            fileLoaded.style.display = 'flex';
+            btnSync.disabled = false;
+            btnSync.textContent = `Sync করুন  (${parsedData.length} items)`;
+        } catch (e) {
+            showModal('✕', 'ফাইল Error', 'ফাইল পড়তে সমস্যা:\n' + e.message, 'err');
+        }
+    }
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        handleFile(e.dataTransfer.files[0]);
+    });
+
+    btnSync.addEventListener('click', async () => {
+        if (!parsedData.length) return;
+        btnSync.disabled = true;
+        btnSync.innerHTML = '<span class="spin"></span>Sync হচ্ছে...';
+        progressCard.style.display = 'block';
+        resultCard.style.display = 'none';
+        logArea.innerHTML = '';
+        notFoundCodes.innerHTML = '';
+        notFoundList.style.display = 'none';
+        nfToggle.classList.remove('open');
+        notFoundCodes.classList.remove('open');
+
+        try {
+            setProgress(10, 'Firebase থেকে ডাটা নামানো হচ্ছে...');
+            log('PRODUCTS লোড হচ্ছে...', '');
+
+            const snap = await db.ref('PRODUCTS').once('value');
+            const allProducts = snap.val() || {};
+
+            setProgress(30, 'Code map তৈরি হচ্ছে...');
+            const codeMap = {};
+            let totalInDB = 0;
+
+            for (const cat in allProducts) {
+                for (const key in allProducts[cat]) {
+                    const code = String(allProducts[cat][key].Code || '').trim();
+                    if (code) { codeMap[code] = `PRODUCTS/${cat}/${key}`; totalInDB++; }
+                }
+            }
+            log(`Firebase: ${totalInDB} টি product`, 'ok');
+
+            setProgress(50, 'Match করা হচ্ছে...');
+            const updates = {};
+            const notFound = [];
+
+            for (const row of parsedData) {
+                const csvCode = String(row['Item Id'] || '').trim();
+                if (!csvCode) continue;
+                const qty = Number(row['Total Stock'] || 0);
+                if (codeMap[csvCode]) {
+                    updates[codeMap[csvCode] + '/totalQty'] = qty;
+                } else {
+                    notFound.push(csvCode);
+                }
+            }
+
+            const matchCount = Object.keys(updates).length;
+            log(`${matchCount} match · ${notFound.length} not found`, matchCount > 0 ? 'ok' : 'warn');
+
+            setProgress(75, 'Firebase আপডেট হচ্ছে...');
+
+            if (matchCount > 0) {
+                await db.ref().update(updates);
+                log(`✓ ${matchCount} টি totalQty আপডেট সম্পন্ন`, 'ok');
+            } else {
+                log('কোনো match নেই। আপডেট হয়নি।', 'warn');
+            }
+
+            if (notFound.length > 0) {
+                log(`⚠ ${notFound.length} টি Code Firebase-এ নেই`, 'warn');
+            }
+
+            setProgress(100, 'সম্পন্ন!');
+
+            statUpdated.textContent = matchCount;
+            statNotFound.textContent = notFound.length;
+
+            if (notFound.length > 0) {
+                notFoundList.style.display = 'block';
+                notFound.forEach(code => {
+                    const tag = document.createElement('span');
+                    tag.className = 'nf-tag';
+                    tag.textContent = code;
+                    notFoundCodes.appendChild(tag);
+                });
+            }
+
+            resultCard.style.display = 'block';
+            btnSync.textContent = '✓ Sync সম্পন্ন';
+
+            // Summary modal
+            const nfMsg = notFound.length > 0
+                ? '\n\n⚠ পাওয়া যায়নি (' + notFound.length + ' টি):\n' + notFound.join(', ')
+                : '';
+            showModal(
+                notFound.length > 0 ? '⚠' : '✓',
+                'Sync সম্পন্ন!',
+                '✓ ' + matchCount + ' টি product আপডেট হয়েছে' + nfMsg,
+                notFound.length > 0 ? 'warn' : 'ok'
+            );
+
+        } catch (e) {
+            log('ERROR: ' + e.message, 'err');
+            setProgress(0, 'Error!');
+            showModal('✕', 'Sync Error', 'সমস্যা হয়েছে:\n' + e.message, 'err');
+            btnSync.disabled = false;
+            btnSync.textContent = 'আবার চেষ্টা করুন';
+        }
+    });
+</script>
+</body>
+</html>
