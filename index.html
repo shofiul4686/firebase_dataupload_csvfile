@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<title>Firebase Smart Data Uploader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eef2ee;
+    --bg-dot: #dfe6de;
+    --panel: #ffffff;
+    --ink: #1c2b24;
+    --ink-soft: #3b4a42;
+    --muted: #66766c;
+    --line: #dde3dc;
+    --line-soft: #ecefe9;
+    --accent: #2f6f4f;
+    --accent-dark: #1f4d36;
+    --accent-soft: #e6f0ea;
+    --waypoint: #c9793a;
+    --waypoint-soft: #f7ebdc;
+    --error: #b3392c;
+    --error-soft: #fbeae7;
+    --shadow: 0 1px 2px rgba(28,43,36,0.05), 0 10px 28px -10px rgba(28,43,36,0.12);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Hind Siliguri", "Segoe UI", -apple-system, sans-serif;
+    background-color: var(--bg);
+    background-image: radial-gradient(circle at 1px 1px, var(--bg-dot) 1.4px, transparent 0);
+    background-size: 24px 24px;
+    color: var(--ink);
+    padding: 54px 16px 90px;
+  }
+  .wrap { max-width: 540px; margin: 0 auto; }
+
+  .brand { display: flex; flex-direction: column; align-items: center; margin-bottom: 28px; }
+  .brand-mark { width: 44px; height: 44px; margin-bottom: 12px; }
+  h1 { font-size: 23px; font-weight: 700; margin: 0 0 8px; text-align: center; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); margin: 0 0 16px; font-size: 14px; text-align: center; }
+  .route-divider { display: block; }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 30px 30px 28px;
+    box-shadow: var(--shadow);
+  }
+  label { display: block; font-size: 12.5px; font-weight: 600; margin: 18px 0 7px; color: var(--ink-soft); }
+  label:first-of-type { margin-top: 0; }
+  input[type="text"], input[type="date"], select, input[type="file"] {
+    width: 100%; padding: 11px 13px; border: 1.5px solid var(--line); border-radius: 9px; font-size: 14px; font-family: inherit; background: #fbfbf9; color: var(--ink);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+  input[type="text"]:hover, input[type="date"]:hover, select:hover { border-color: #c5cfc6; }
+  input[type="text"]:focus, input[type="date"]:focus, select:focus, input[type="file"]:focus {
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); background: #fff;
+  }
+  input[type="file"] { padding: 9px 13px; cursor: pointer; }
+  input[type="file"]::file-selector-button {
+    background: var(--accent-soft); color: var(--accent-dark); border: none; border-radius: 6px; padding: 7px 12px; font-weight: 600; font-size: 13px; margin-right: 10px; cursor: pointer; font-family: inherit; transition: background 0.15s ease;
+  }
+  input[type="file"]::file-selector-button:hover { background: #d6e7dc; }
+  select {
+    cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2366766c' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px;
+  }
+  button {
+    background: var(--accent); color: white; border: none; padding: 13px 22px; border-radius: 10px; font-size: 14.5px; font-weight: 700; font-family: inherit; cursor: pointer; width: 100%; margin-top: 22px; transition: background 0.15s ease, transform 0.05s ease;
+  }
+  button:hover { background: var(--accent-dark); }
+  button:active { transform: scale(0.99); }
+  button:disabled { background: #b7c2ba; cursor: not-allowed; }
+  button:focus-visible { outline: 2px solid var(--accent-dark); outline-offset: 2px; }
+  .progress-wrap { margin-top: 22px; display: none; }
+  .bar-track { background: var(--line-soft); border-radius: 20px; height: 8px; overflow: hidden; }
+  .bar-fill { background: linear-gradient(90deg, var(--accent), var(--accent-dark)); height: 100%; width: 0%; transition: width 0.25s ease; border-radius: 20px; }
+  .progress-text { font-size: 12.5px; color: var(--muted); margin-top: 8px; text-align: right; font-variant-numeric: tabular-nums; }
+  #log {
+    margin-top: 18px; font-family: "IBM Plex Mono", monospace; font-size: 12px; line-height: 1.6; background: #f6f7f4; border: 1px solid var(--line-soft); border-radius: 9px; padding: 12px 14px; max-height: 140px; overflow-y: auto; white-space: pre-wrap; display: block; color: var(--ink-soft);
+  }
+  .error-box { background: var(--error-soft); border: 1px solid #eab8ae; color: var(--error); padding: 11px 14px; border-radius: 9px; font-size: 13px; margin-top: 18px; display: none; font-weight: 600; }
+  .success-box { background: var(--accent-soft); border: 1px solid #bcdcc7; color: var(--accent-dark); padding: 13px 16px; border-radius: 9px; font-size: 14px; margin-top: 18px; display: none; font-weight: 700; text-align: center; }
+  .row2 { display: flex; gap: 12px; margin-bottom: 4px; }
+  .row2 > div { flex: 1; }
+  .row3 { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 4px; }
+  .row3 > div { flex: 1; min-width: 0; }
+  .row3 > button { flex: 1; margin-top: 0; min-width: 0; }
+  #dateSection { display: none; }
+
+  .date-picker { position: relative; }
+  .date-picker-trigger {
+    width: 100%; margin-top: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 11px 13px; border: 1.5px solid var(--line); border-radius: 9px; background: #fbfbf9;
+    font-family: inherit; font-size: 14px; font-weight: 400; color: var(--ink); cursor: pointer;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .date-picker-trigger:hover { border-color: #c5cfc6; background: #fbfbf9; }
+  .date-picker-trigger.open { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .date-picker-trigger svg { color: var(--muted); flex-shrink: 0; }
+  .date-picker-panel {
+    position: absolute; top: calc(100% + 8px); left: 0; z-index: 30;
+    width: 250px; background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: var(--shadow); padding: 14px; display: none;
+  }
+  .date-picker-panel.open { display: block; }
+  .dp-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .dp-header span { font-weight: 700; font-size: 13.5px; color: var(--ink-soft); }
+  .dp-nav {
+    background: none; border: none; width: auto; margin: 0; padding: 3px 9px; font-size: 16px;
+    color: var(--accent-dark); cursor: pointer; border-radius: 6px; line-height: 1.4;
+  }
+  .dp-nav:hover { background: var(--accent-soft); }
+  .dp-weekdays, .dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .dp-weekdays span { text-align: center; font-size: 11px; color: var(--muted); font-weight: 600; padding-bottom: 6px; }
+  .dp-grid button {
+    width: 100%; margin: 0; padding: 7px 0; font-size: 12.5px; border-radius: 7px; background: transparent;
+    color: var(--ink); font-weight: 500; border: none; cursor: pointer;
+  }
+  .dp-grid button:hover { background: var(--accent-soft); }
+  .dp-grid button.dp-muted { color: #c3cbc5; }
+  .dp-grid button.dp-today { border: 1.5px solid var(--waypoint); }
+  .dp-grid button.dp-selected { background: var(--accent); color: #fff; font-weight: 700; }
+
+  #headerHint {
+    display: none;
+    background: var(--waypoint-soft);
+    border: 1px solid #ecd2b3;
+    color: var(--ink);
+    padding: 13px 15px;
+    border-radius: 10px;
+    font-size: 12.5px;
+    line-height: 1.7;
+    margin: 6px 0 18px;
+  }
+  #headerHint .hint-title { font-weight: 700; color: #8a501f; margin-bottom: 5px; }
+  #headerHint ul { margin: 4px 0 0; padding-left: 18px; }
+  #headerHint li { margin-bottom: 3px; }
+  #headerHint code {
+    background: #fff; padding: 1.5px 6px; border-radius: 4px; font-size: 12px; color: var(--accent-dark); border: 1px solid #ecd2b3;
+  }
+  #headerHint .hint-note { color: var(--muted); margin-top: 7px; font-style: italic; }
+
+  .preview-wrap { margin-top: 26px; display: none; }
+  .preview-wrap h3 { font-size: 15.5px; margin: 0 0 5px; font-weight: 700; }
+  .preview-wrap .info-line { font-size: 12.5px; color: var(--muted); margin: 0 0 14px; line-height: 1.6; }
+  .table-scroll { overflow-x: auto; max-height: 420px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; }
+  #previewTable { width: 100%; border-collapse: collapse; font-size: 12px; white-space: nowrap; }
+  #previewTable thead th { background: #f4f5f2; position: sticky; top: 0; text-align: left; padding: 9px 11px; border-bottom: 1px solid var(--line); font-weight: 700; z-index: 1; color: var(--ink-soft); }
+  #previewTable tbody tr:hover td { background: #fafbf9; }
+  #previewTable tbody td { padding: 5px 7px; border-bottom: 1px solid var(--line-soft); }
+  #previewTable input {
+    width: 100%; min-width: 92px; padding: 6px 7px; border: 1px solid var(--line); border-radius: 5px; font-size: 12px; font-family: inherit; background: #fdfcfb;
+  }
+  .preview-actions { display: flex; gap: 12px; margin-top: 18px; }
+  .preview-actions button { margin-top: 0; }
+  #cancelPreviewBtn { background: transparent; color: var(--muted); border: 1.5px solid var(--line); }
+  #cancelPreviewBtn:hover { background: var(--line-soft); color: var(--ink); }
+
+  @media (max-width: 480px) {
+    .card { padding: 24px 20px; }
+    .row2 { flex-direction: column; gap: 0; }
+    .row3 { flex-direction: column; gap: 0; align-items: stretch; }
+    .row3 > div, .row3 > button { margin-top: 0; }
+    .row3 > button { margin-top: 16px; }
+    .date-picker-panel { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="24" cy="24" r="22" fill="#e6f0ea"/>
+      <path d="M24 12c-5 0-9 3.8-9 9 0 6.5 9 15 9 15s9-8.5 9-15c0-5.2-4-9-9-9z" fill="#2f6f4f"/>
+      <circle cx="24" cy="21" r="3.4" fill="#ffffff"/>
+    </svg>
+    <h1>Chemist & Route Smart Uploader</h1>
+    <p class="sub">মাস্টার লিস্ট থেকে ফাঁকা ফিল্ড অটো-পূরণ করে আপলোড করুন</p>
+    <svg class="route-divider" width="220" height="14" viewBox="0 0 220 14" xmlns="http://www.w3.org/2000/svg">
+      <line x1="6" y1="7" x2="214" y2="7" stroke="#dde3dc" stroke-width="2" stroke-dasharray="1 7" stroke-linecap="round"/>
+      <circle cx="6" cy="7" r="4" fill="#c9793a"/>
+      <circle cx="110" cy="7" r="3" fill="#2f6f4f"/>
+      <circle cx="214" cy="7" r="4" fill="#2f6f4f"/>
+    </svg>
+  </div>
+
+  <div class="card">
+    <div class="row3">
+      <div>
+        <label>CSV ফাইল সিলেক্ট করুন</label>
+        <input type="file" id="csvFile" accept=".csv">
+      </div>
+      <div>
+        <label>Database Destination </label>
+        <select id="collectionName">
+          <option value="" disabled selected>-- ডেস্টিনেশন সিলেক্ট করুন --</option>
+          <option value="Chemist_List">CHEMIST LIST (Firestore)</option>
+          <option value="Chemist_Wise_Unpaid">13. F Chemist wise outstanding</option>
+          <option value="RTDB_Route_Update">ROUTE UPDATE (Realtime Database)</option>
+          <option value="RTDB_Employee_List">EMPLOYEE LIST UPDATE (Realtime Database)</option>
+        </select>
+      </div>
+      <div id="dateSection">
+        <label>Unpaid Data Date </label>
+        <div class="date-picker" id="datePickerWrap">
+          <button type="button" class="date-picker-trigger" id="datePickerTrigger">
+            <span id="datePickerLabel">তারিখ নির্বাচন করুন</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </button>
+          <input type="hidden" id="unpaidDate">
+          <div class="date-picker-panel" id="datePickerPanel">
+            <div class="dp-header">
+              <button type="button" id="dpPrev" class="dp-nav">‹</button>
+              <span id="dpMonthLabel"></span>
+              <button type="button" id="dpNext" class="dp-nav">›</button>
+            </div>
+            <div class="dp-weekdays">
+              <span>র</span><span>সো</span><span>ম</span><span>বু</span><span>বৃ</span><span>শু</span><span>শ</span>
+            </div>
+            <div class="dp-grid" id="dpGrid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="headerHint"></div>
+
+    <div class="row3">
+      <div id="divisionWrapper">
+        <label>Division</label>
+        <select id="division">
+          <option value="" disabled selected>-- ডিভিশন সিলেক্ট করুন --</option>
+          <option value="pharma">PHARMA</option>
+          <option value="inm">INM</option>
+          <option value="isv">ISV</option>
+        </select>
+      </div>
+      <div id="employeeCategoryWrapper" style="display:none;">
+        <label>Employee Category</label>
+        <select id="employeeCategory">
+          <option value="" disabled selected>-- ক্যাটেগরি সিলেক্ট করুন --</option>
+          <option value="DR">DR</option>
+          <option value="OFFICE_STAFF">OFFICE STAFF</option>
+          <option value="FIELD_FORCE">FIELD FORCE</option>
+        </select>
+      </div>
+      <div>
+        <label>Junk Header</label>
+        <input type="text" id="skipRows" placeholder="0">
+      </div>
+      <button id="uploadBtn">যাচাই করুন (Check & Preview)</button>
+    </div>
+
+    <div class="progress-wrap" id="progressWrap">
+      <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
+      <div class="progress-text" id="progressText">০ / ০</div>
+    </div>
+    
+    <div class="error-box" id="errorBox"></div>
+    <div class="success-box" id="successBox"></div>
+    <div id="log">সিস্টেম রেডি। ফাইল সিলেক্ট করুন।</div>
+  </div>
+
+  <div class="preview-wrap" id="previewWrap">
+    <h3>নতুন রেকর্ড: <span id="newCount">0</span> টি</h3>
+    <p class="info-line" id="previewInfoLine">নিচের টেবিলে শুধু <strong>নতুন</strong> রেকর্ডগুলো দেখানো হচ্ছে — এগুলো প্রয়োজনে এডিট করে নিন। আগে থেকেই থাকা <span id="existingCount">0</span> টি রেকর্ড এখানে দেখানো হচ্ছে না, সেগুলো Confirm করলে ব্যাকগ্রাউন্ডে স্বয়ংক্রিয়ভাবে আপডেট (মার্জ) হয়ে যাবে।</p>
+    <div class="table-scroll">
+      <table id="previewTable">
+        <thead><tr id="previewHeadRow"></tr></thead>
+        <tbody id="previewBody"></tbody>
+      </table>
+    </div>
+    <div class="preview-actions">
+      <button id="confirmUploadBtn">Confirm &amp; আপলোড করুন</button>
+      <button id="cancelPreviewBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyD7fAzmJxtpypMEykHPfD2muG8xiRFpXR8",
+  authDomain: "rutewisereport-dinajpur.firebaseapp.com",
+  projectId: "rutewisereport-dinajpur",
+  storageBucket: "rutewisereport-dinajpur.firebasestorage.app",
+  messagingSenderId: "1032741639156",
+  appId: "1:1032741639156:web:db0c3a2a3c8b85bff3dfa1",
+  measurementId: "G-DBB0DXD4TN",
+  databaseURL: "https://rutewisereport-dinajpur-default-rtdb.asia-southeast1.firebasedatabase.app"
+};
+
+const uploadBtn = document.getElementById('uploadBtn');
+const errorBox = document.getElementById('errorBox');
+const successBox = document.getElementById('successBox');
+const progressWrap = document.getElementById('progressWrap');
+const barFill = document.getElementById('barFill');
+const progressText = document.getElementById('progressText');
+const collectionSelect = document.getElementById('collectionName');
+const dateSection = document.getElementById('dateSection');
+const divisionWrapper = document.getElementById('divisionWrapper');
+const employeeCategoryWrapper = document.getElementById('employeeCategoryWrapper');
+const employeeCategorySelect = document.getElementById('employeeCategory');
+const headerHintEl = document.getElementById('headerHint');
+const unpaidDateInput = document.getElementById('unpaidDate');
+const logEl = document.getElementById('log');
+
+const previewWrap = document.getElementById('previewWrap');
+const previewHeadRow = document.getElementById('previewHeadRow');
+const previewBody = document.getElementById('previewBody');
+const newCountEl = document.getElementById('newCount');
+const existingCountEl = document.getElementById('existingCount');
+const previewInfoLineEl = document.getElementById('previewInfoLine');
+const confirmUploadBtn = document.getElementById('confirmUploadBtn');
+const cancelPreviewBtn = document.getElementById('cancelPreviewBtn');
+
+const today = new Date();
+unpaidDateInput.value = '';
+
+// ==================== কাস্টম ডেট পিকার (Unpaid Data Date) ====================
+const dpTrigger = document.getElementById('datePickerTrigger');
+const dpLabel = document.getElementById('datePickerLabel');
+const dpPanel = document.getElementById('datePickerPanel');
+const dpGrid = document.getElementById('dpGrid');
+const dpMonthLabel = document.getElementById('dpMonthLabel');
+const dpPrevBtn = document.getElementById('dpPrev');
+const dpNextBtn = document.getElementById('dpNext');
+
+const BN_MONTHS = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+
+let dpViewYear = today.getFullYear();
+let dpViewMonth = today.getMonth(); // ০-১১
+let dpSelected = null; // প্রাথমিক অবস্থায় কোনো তারিখ সিলেক্ট করা থাকবে না
+
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+function dpFormatLabel(y, m, d) {
+  return `${pad2(d)} ${BN_MONTHS[m]} ${y}`;
+}
+
+function dpSetHiddenValue(y, m, d) {
+  unpaidDateInput.value = `${y}-${pad2(m + 1)}-${pad2(d)}`;
+}
+
+function dpRenderGrid() {
+  dpMonthLabel.textContent = `${BN_MONTHS[dpViewMonth]} ${dpViewYear}`;
+  dpGrid.innerHTML = '';
+
+  const firstDay = new Date(dpViewYear, dpViewMonth, 1).getDay(); // ০ = রবিবার
+  const daysInMonth = new Date(dpViewYear, dpViewMonth + 1, 0).getDate();
+  const prevMonthDays = new Date(dpViewYear, dpViewMonth, 0).getDate();
+
+  const cells = [];
+  for (let i = firstDay - 1; i >= 0; i--) {
+    cells.push({ day: prevMonthDays - i, muted: true });
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    cells.push({ day: d, muted: false });
+  }
+  const trailing = (7 - (cells.length % 7)) % 7;
+  for (let d = 1; d <= trailing; d++) {
+    cells.push({ day: d, muted: true });
+  }
+
+  cells.forEach(cell => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = String(cell.day);
+    if (cell.muted) {
+      btn.classList.add('dp-muted');
+    } else {
+      const isToday = (dpViewYear === today.getFullYear() && dpViewMonth === today.getMonth() && cell.day === today.getDate());
+      const isSelected = !!dpSelected && dpViewYear === dpSelected.y && dpViewMonth === dpSelected.m && cell.day === dpSelected.d;
+      if (isToday) btn.classList.add('dp-today');
+      if (isSelected) btn.classList.add('dp-selected');
+      btn.addEventListener('click', () => {
+        dpSelected = { y: dpViewYear, m: dpViewMonth, d: cell.day };
+        dpSetHiddenValue(dpViewYear, dpViewMonth, cell.day);
+        dpLabel.textContent = dpFormatLabel(dpViewYear, dpViewMonth, cell.day);
+        dpClose();
+      });
+    }
+    dpGrid.appendChild(btn);
+  });
+}
+
+function dpOpen() {
+  dpViewYear = dpSelected ? dpSelected.y : today.getFullYear();
+  dpViewMonth = dpSelected ? dpSelected.m : today.getMonth();
+  dpRenderGrid();
+  dpPanel.classList.add('open');
+  dpTrigger.classList.add('open');
+}
+function dpClose() {
+  dpPanel.classList.remove('open');
+  dpTrigger.classList.remove('open');
+}
+
+dpTrigger.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (dpPanel.classList.contains('open')) dpClose(); else dpOpen();
+});
+dpPrevBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  dpViewMonth--;
+  if (dpViewMonth < 0) { dpViewMonth = 11; dpViewYear--; }
+  dpRenderGrid();
+});
+dpNextBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  dpViewMonth++;
+  if (dpViewMonth > 11) { dpViewMonth = 0; dpViewYear++; }
+  dpRenderGrid();
+});
+document.addEventListener('click', (e) => {
+  if (!document.getElementById('datePickerWrap').contains(e.target)) dpClose();
+});
+
+// টেবিলে যেই কলামগুলো দেখাবে/এডিট করা যাবে
+// Route Update-এর জন্য শুধু SL NO আর NAME দেখানো হয় (CSV-তে একটাই কলাম থাকে)
+// Employee List-এর জন্য IPI/Designation/Territory/Area/Zone ভিত্তিক আলাদা কলাম সেট
+function getPreviewFields(isRouteUpdate, isEmployeeList) {
+  if (isRouteUpdate) return ['SL NO', 'NAME'];
+  if (isEmployeeList) return ['IPI NO', 'NAME', 'DESIGNATION', 'JOINING DATE', 'TERRITORY CODE', 'TERRITORY NAME', 'AREA CODE', 'AREA NAME', 'ZONE CODE', 'ZONE NAME'];
+  return ['Code', 'Chemist Name', 'NAME OF ROUTE', 'ADRESS', 'TR CODE', 'TR NAME', 'CATEGORY', 'Division'];
+}
+
+let app = null;
+let db = null;
+let pendingState = null; // Confirm ধাপের জন্য সব তথ্য এখানে রাখা হয়
+let routeOptionsList = []; // Route_Update থেকে আনা রুটের তালিকা (ড্রপডাউনের জন্য)
+
+// ==================== RTDB "Rute_Name" থেকে রুটের লিস্ট আনা ====================
+// রুট এখন সব ডিভিশনের জন্য একই (division নির্দিষ্ট নয়), তাই একটাই শেয়ার্ড পাথ থেকে আনা হয়
+async function fetchRouteList() {
+  const startedAt = Date.now();
+  log(`[DEBUG] রুট লিস্ট আনা শুরু (Rute_Name)...`);
+  try {
+    const rtdb = firebase.database(app);
+
+    // ৮ সেকেন্ড টাইমআউট — RTDB কানেকশন আটকে থাকলে যাতে পুরো প্রসেস অনন্তকাল না থামে
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('RTDB route fetch timeout (৮ সেকেন্ডেও রেসপন্স পাওয়া যায়নি)')), 8000)
+    );
+    const fetchPromise = rtdb.ref(`Rute_Name`).once('value');
+
+    const snap = await Promise.race([fetchPromise, timeoutPromise]);
+    const routesSet = new Set();
+
+    if (snap.exists()) {
+      snap.forEach(childSnap => {
+        const val = childSnap.val();
+        const routeName = val && (val['NAME'] || val['NAME OF ROUTE'] || val['Route']);
+        if (routeName && routeName.trim()) routesSet.add(routeName.trim());
+      });
+    }
+
+    log(`[DEBUG] রুট লিস্ট আনা শেষ (${Date.now() - startedAt}ms) — ${routesSet.size} টি রুট পাওয়া গেছে।`);
+    return Array.from(routesSet).sort((a, b) => a.localeCompare(b));
+  } catch (e) {
+    console.error('রুট লিস্ট আনতে সমস্যা:', e);
+    log(`[DEBUG] রুট লিস্ট আনতে ব্যর্থ (${Date.now() - startedAt}ms): ${e.message}। এটা ছাড়াই এগোনো হচ্ছে (Route ড্রপডাউন খালি থাকবে)।`);
+    return []; // ব্যর্থ হলেও খালি লিস্ট রিটার্ন করে যাতে বাকি প্রসেস আটকে না যায়
+  }
+}
+
+function updateDivisionVisibility() {
+  const val = collectionSelect.value;
+  // ROUTE UPDATE ও EMPLOYEE LIST-এ Division দরকার নাই
+  if (val === 'RTDB_Route_Update' || val === 'RTDB_Employee_List') {
+    divisionWrapper.style.display = 'none';
+  } else {
+    divisionWrapper.style.display = 'block';
+  }
+  // EMPLOYEE LIST-এর জন্য আলাদা ক্যাটেগরি (DR/OFFICE STAFF/FIELD FORCE) দেখাতে হবে
+  employeeCategoryWrapper.style.display = (val === 'RTDB_Employee_List') ? 'block' : 'none';
+}
+
+// প্রতিটা Database Destination-এর জন্য CSV-তে কোন কোন হেডার লাগবে সেটার নমুনা
+const HEADER_HINTS = {
+  Chemist_List: `
+    <div class="hint-title">CHEMIST LIST — যেসব কলাম দরকার</div>
+    <ul>
+      <li><code>Client ID</code> বা <code>Code</code> — কেমিস্টের কোড (আবশ্যক)</li>
+      <li><code>Name</code> বা <code>Chemist Name</code> — কেমিস্টের নাম (আবশ্যক)</li>
+      <li>অথবা একটাই কলামে <code>Code | Name</code> বা <code>Code - Name</code> ফরম্যাটে দিলেও চলবে</li>
+      <li><code>Route</code> / <code>Name Of Route</code> — রুটের নাম (ঐচ্ছিক)</li>
+      <li><code>Address</code> — ঠিকানা (ঐচ্ছিক)</li>
+      <li><code>Territory ID</code> — টেরিটরি কোড (ঐচ্ছিক)</li>
+      <li><code>Territory Name</code> — টেরিটরির নাম (ঐচ্ছিক)</li>
+      <li><code>Category Name</code> — ক্যাটাগরি (ঐচ্ছিক)</li>
+    </ul>
+    <div class="hint-note">নমুনা: Code, Name, Route, Address, Territory ID, Territory Name, Category Name</div>
+  `,
+  Chemist_Wise_Unpaid: `
+    <div class="hint-title">13. F Chemist wise outstanding — যেসব কলাম দরকার</div>
+    <ul>
+      <li><code>Client ID</code> বা <code>Code</code> — কেমিস্টের কোড (আবশ্যক)</li>
+      <li><code>Name</code> বা <code>Chemist Name</code> — কেমিস্টের নাম (আবশ্যক)</li>
+      <li><code>Total Amount</code> — মোট বিলের পরিমাণ</li>
+      <li><code>Total OS</code> — মোট বকেয়া (Outstanding)</li>
+    </ul>
+    <div class="hint-note">Route, Address, Territory, Category এখানে লাগবে না — এগুলো মাস্টার লিস্ট (CHEMIST LIST) থেকে অটো বসে যাবে, যদি সেই কোড আগে থেকে CHEMIST LIST-এ থাকে।</div>
+  `,
+  RTDB_Route_Update: `
+    <div class="hint-title">ROUTE UPDATE — যেসব কলাম দরকার</div>
+    <ul>
+      <li>শুধু <strong>১টা কলাম</strong> — রুটের নাম। হেডারের নাম যা-ই থাকুক, প্রথম কলামের মানটাই নেওয়া হবে</li>
+    </ul>
+    <div class="hint-note">SL NO স্বয়ংক্রিয়ভাবে যোগ হয়ে যাবে, আলাদা করে দিতে হবে না। Division-ও লাগবে না।</div>
+  `,
+  RTDB_Employee_List: `
+    <div class="hint-title">EMPLOYEE LIST UPDATE — যেসব কলাম দরকার</div>
+    <ul>
+      <li>প্রথম দুইটা কলাম (A ও B) — এই দুইটা মিলিয়ে ইউনিক আইডি তৈরি হবে, সাধারণত <code>IPI NO</code> ও <code>NAME</code></li>
+      <li><code>IPI NO</code> — কর্মীর আইডি (আবশ্যক, কলাম A)</li>
+      <li><code>NAME</code> — নাম (আবশ্যক, কলাম B)</li>
+      <li><code>DESIGNATION</code> — পদবি</li>
+      <li><code>JOINING DATE</code> — যোগদানের তারিখ</li>
+      <li><code>TERRITORY CODE</code> — টেরিটরি কোড</li>
+      <li><code>TERRITORY NAME</code> — টেরিটরির নাম</li>
+      <li><code>AREA CODE</code> — এরিয়া কোড</li>
+      <li><code>AREA NAME</code> — এরিয়ার নাম</li>
+      <li><code>ZONE CODE</code> — জোন কোড</li>
+      <li><code>ZONE NAME</code> — জোনের নাম</li>
+    </ul>
+    <div class="hint-note">উপরে Employee Category (DR / OFFICE STAFF / FIELD FORCE) সিলেক্ট করে দিন — একই ব্যাচের সবাইকে একই ক্যাটেগরিতে সেভ করা হবে। CSV হেডারের বানানে সামান্য পার্থক্য (যেমন TRRITORY CO, TRITORY NAME) থাকলেও অটো মিলিয়ে নেওয়া হবে।</div>
+  `
+};
+
+function updateHeaderHint() {
+  const hint = HEADER_HINTS[collectionSelect.value] || '';
+  headerHintEl.innerHTML = hint;
+  headerHintEl.style.display = hint ? 'block' : 'none';
+}
+
+collectionSelect.addEventListener('change', () => {
+  if (collectionSelect.value === 'Chemist_Wise_Unpaid') {
+    dateSection.style.display = 'block';
+  } else {
+    dateSection.style.display = 'none';
+  }
+  updateDivisionVisibility();
+  updateHeaderHint();
+});
+
+updateDivisionVisibility();
+updateHeaderHint();
+
+function showError(msg) {
+  errorBox.style.display = 'block';
+  errorBox.textContent = msg;
+}
+function clearMessages() {
+  errorBox.style.display = 'none';
+  successBox.style.display = 'none';
+  logEl.textContent = '';
+}
+function log(msg) {
+  logEl.textContent += msg + '\n';
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function parseInputDate(dateStr) {
+  const parts = dateStr.split('-'); 
+  const year = parts[0];
+  const monthIdx = parseInt(parts[1], 10) - 1;
+  const day = parts[2];
+  
+  const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+  const shortMonth = months[monthIdx];
+  const formattedDate = `${day}.${parts[1]}.${year}`;
+
+  return { year, shortMonth, formattedDate };
+}
+
+// Chemist ডাটার জন্য Code দিয়ে ইউনিক আইডি হয়; Route Update-এ Route নাম দিয়ে, Employee List-এ IPI NO+NAME (কলাম A+B) দিয়ে আইডি হয়
+function buildDocId(row, isRouteUpdate, isEmployeeList) {
+  let rawKey;
+  if (isRouteUpdate) rawKey = row['NAME'] || '';
+  else if (isEmployeeList) rawKey = `${row['IPI NO'] || ''}_${row['NAME'] || ''}`;
+  else rawKey = row['Code'] || '';
+  return String(rawKey).trim().replace(/[\.\$\#\[\]\/]/g, '-');
+}
+
+// ==================== EXISTENCE CHECK (Firestore) ====================
+async function checkExistenceFirestore(targetCollectionRef, rows, onProgress, isRouteUpdate, isEmployeeList) {
+  const CHECK_BATCH = 20;
+  const existsMap = {};
+  for (let i = 0; i < rows.length; i += CHECK_BATCH) {
+    const chunk = rows.slice(i, i + CHECK_BATCH);
+    await Promise.all(chunk.map(async (row) => {
+      const docId = buildDocId(row, isRouteUpdate, isEmployeeList);
+      try {
+        const snap = await targetCollectionRef.doc(docId).get();
+        existsMap[docId] = snap.exists;
+      } catch (e) {
+        existsMap[docId] = false;
+      }
+    }));
+    if (onProgress) onProgress(Math.min(i + CHECK_BATCH, rows.length), rows.length);
+  }
+  return existsMap;
+}
+
+// ==================== EXISTENCE CHECK (RTDB) ====================
+async function checkExistenceRTDB(rtdb, rootPath, rows, onProgress, isRouteUpdate, isEmployeeList) {
+  const CHECK_BATCH = 20;
+  const PER_REQUEST_TIMEOUT = 10000; // ১০ সেকেন্ড — কানেকশন সমস্যায় যাতে পুরো প্রসেস আটকে না থাকে
+  const existsMap = {};
+  for (let i = 0; i < rows.length; i += CHECK_BATCH) {
+    const chunk = rows.slice(i, i + CHECK_BATCH);
+    await Promise.all(chunk.map(async (row) => {
+      const docId = buildDocId(row, isRouteUpdate, isEmployeeList);
+      try {
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('timeout')), PER_REQUEST_TIMEOUT)
+        );
+        const snap = await Promise.race([rtdb.ref(`${rootPath}/${docId}`).once('value'), timeoutPromise]);
+        existsMap[docId] = snap.exists();
+      } catch (e) {
+        existsMap[docId] = false;
+      }
+    }));
+    if (onProgress) onProgress(Math.min(i + CHECK_BATCH, rows.length), rows.length);
+  }
+  return existsMap;
+}
+
+// ==================== PREVIEW TABLE রেন্ডার ====================
+function renderPreviewTable(newRows, isRouteUpdate, isEmployeeList) {
+  const fields = getPreviewFields(isRouteUpdate, isEmployeeList);
+
+  previewHeadRow.innerHTML = '';
+  fields.forEach(f => {
+    const th = document.createElement('th');
+    th.textContent = f;
+    previewHeadRow.appendChild(th);
+  });
+
+  previewBody.innerHTML = '';
+  newRows.forEach((row, idx) => {
+    const tr = document.createElement('tr');
+    fields.forEach(f => {
+      const td = document.createElement('td');
+
+      if (f === 'NAME OF ROUTE' && !isRouteUpdate && !isEmployeeList) {
+        const select = document.createElement('select');
+        select.dataset.rowIndex = String(idx);
+        select.dataset.field = f;
+
+        const currentVal = (row[f] || '').trim();
+        let options = routeOptionsList.slice();
+
+        const blankOpt = document.createElement('option');
+        blankOpt.value = '';
+        blankOpt.textContent = '-- রুট সিলেক্ট করুন --';
+        select.appendChild(blankOpt);
+
+        if (currentVal && !options.includes(currentVal)) {
+          options.unshift(currentVal);
+        }
+
+        options.forEach(opt => {
+          const o = document.createElement('option');
+          o.value = opt;
+          o.textContent = opt;
+          if (opt === currentVal) o.selected = true;
+          select.appendChild(o);
+        });
+
+        td.appendChild(select);
+      } else {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = row[f] || '';
+        input.dataset.rowIndex = String(idx);
+        input.dataset.field = f;
+        td.appendChild(input);
+      }
+
+      tr.appendChild(td);
+    });
+    previewBody.appendChild(tr);
+  });
+}
+
+function readEditedNewRows(originalNewRows) {
+  const updated = originalNewRows.map(r => Object.assign({}, r));
+  const inputs = previewBody.querySelectorAll('input, select');
+  inputs.forEach(input => {
+    const idx = parseInt(input.dataset.rowIndex, 10);
+    const field = input.dataset.field;
+    updated[idx][field] = input.value.trim();
+  });
+  return updated;
+}
+
+// ==================== ধাপ ১: CSV পার্স + লুকআপ + Existence Check ====================
+uploadBtn.addEventListener('click', async () => {
+  clearMessages();
+  previewWrap.style.display = 'none';
+  pendingState = null;
+
+  const fileInput = document.getElementById('csvFile');
+  const targetDb = collectionSelect.value;
+  const isRouteUpdate = (targetDb === 'RTDB_Route_Update');
+  const isEmployeeList = (targetDb === 'RTDB_Employee_List');
+  const division = (isRouteUpdate || isEmployeeList) ? '' : document.getElementById('division').value;
+  const employeeCategory = isEmployeeList ? employeeCategorySelect.value : '';
+  const skipRows = parseInt(document.getElementById('skipRows').value || '0', 10);
+
+  if (!targetDb) { showError('অনুগ্রহ করে Database Destination সিলেক্ট করুন।'); return; }
+  if (!isRouteUpdate && !isEmployeeList && !division) { showError('অনুগ্রহ করে Division সিলেক্ট করুন।'); return; }
+  if (isEmployeeList && !employeeCategory) { showError('অনুগ্রহ করে Employee Category সিলেক্ট করুন।'); return; }
+  if (!fileInput.files.length) { showError('অনুগ্রহ করে একটি CSV ফাইল বেছে নিন।'); return; }
+
+  let yearStr, monthStr, formattedDateStr;
+  if (targetDb === 'Chemist_Wise_Unpaid') {
+    if (!unpaidDateInput.value) { showError('অনুগ্রহ করে তারিখ সিলেক্ট করুন।'); return; }
+    const dateData = parseInputDate(unpaidDateInput.value);
+    yearStr = dateData.year;
+    monthStr = dateData.shortMonth;
+    formattedDateStr = dateData.formattedDate;
+  }
+
+  uploadBtn.disabled = true;
+  uploadBtn.textContent = 'যাচাই করা হচ্ছে...';
+  log('ফাইল রিড করা হচ্ছে...');
+
+  try {
+    app = (!firebase.apps || !firebase.apps.length) ? firebase.initializeApp(firebaseConfig) : firebase.app();
+    db = firebase.firestore(app);
+
+    const file = fileInput.files[0];
+    const text = await file.text();
+    
+    let cleanText = text;
+    if (skipRows > 0) {
+      const linesArray = text.split(/\r?\n/);
+      cleanText = linesArray.slice(skipRows).join('\n');
+    }
+
+    const parsed = Papa.parse(cleanText, { header: true, skipEmptyLines: true });
+    const rawRows = parsed.data;
+    
+    log(`ফাইলে মোট লাইন পাওয়া গেছে: ${rawRows.length}`);
+
+    const rows = [];
+
+    if (isRouteUpdate) {
+      // Route Update: CSV-তে একটাই কলাম (Column A) — শুধু রুটের নাম। SL NO এখানে অটো যোগ হয়।
+      let slNo = 0;
+      for (let i = 0; i < rawRows.length; i++) {
+        const r = rawRows[i];
+        const firstVal = Object.values(r)[0];
+        const routeName = (firstVal || '').toString().trim();
+        if (!routeName) continue;
+        slNo++;
+        rows.push({
+          'SL NO': slNo,
+          'NAME': routeName
+        });
+      }
+    } else if (isEmployeeList) {
+      // Employee List Update: CSV কলাম A ও B (সাধারণত IPI NO ও NAME) দিয়ে key তৈরি হয়,
+      // বাকি ফিল্ডগুলো হেডারের নাম মিলিয়ে (বানানের সামান্য পার্থক্য থাকলেও) বসানো হয়
+      for (let i = 0; i < rawRows.length; i++) {
+        const r = rawRows[i];
+        const values = Object.values(r);
+
+        let clean = {};
+        Object.keys(r).forEach(k => {
+          if (k) clean[k.trim().toUpperCase()] = (r[k] || '').toString().trim();
+        });
+
+        const colA = (values[0] || '').toString().trim(); // IPI NO
+        const colB = (values[1] || '').toString().trim(); // NAME
+
+        const findField = (...aliases) => {
+          for (const alias of aliases) {
+            if (clean[alias] !== undefined && clean[alias] !== '') return clean[alias];
+          }
+          return '';
+        };
+
+        if (colA && colB) {
+          rows.push({
+            'IPI NO': colA,
+            'NAME': colB,
+            'DESIGNATION': findField('DESIGNATION'),
+            'JOINING DATE': findField('JOINING DATE'),
+            'TERRITORY CODE': findField('TERRITORY CODE', 'TRRITORY CO', 'TRITORY CODE', 'TR CODE'),
+            'TERRITORY NAME': findField('TERRITORY NAME', 'TRITORY NAME', 'TR NAME'),
+            'AREA CODE': findField('AREA CODE'),
+            'AREA NAME': findField('AREA  NAME', 'AREA NAME'),
+            'ZONE CODE': findField('ZONE CODE'),
+            'ZONE NAME': findField('ZONE NAME')
+          });
+        }
+      }
+    } else {
+      for (let i = 0; i < rawRows.length; i++) {
+        let r = rawRows[i];
+        let clean = {};
+
+        Object.keys(r).forEach(k => {
+          if (k) clean[k.trim()] = (r[k] || '').toString().trim();
+        });
+
+        let finalCode = '';
+        let finalName = '';
+
+        if (clean['Client ID'] !== undefined || clean['Client Id'] !== undefined) {
+          finalCode = (clean['Client ID'] || clean['Client Id'] || clean['Code'] || '').trim();
+          finalName = (clean['Name'] || clean['Chemist Name'] || '').trim();
+        } else {
+          let combinedField = clean['Chemist ID/Name'] || clean['Chemist Name/ID'] || clean['Chemist Name'] || Object.values(clean)[0] || '';
+          finalCode = clean['Code'] || '';
+
+          if (combinedField && combinedField.includes('|')) {
+            const parts = combinedField.split('|');
+            finalCode = parts[0].trim();
+            finalName = parts[1].trim();
+          } else if (combinedField) {
+            const match = combinedField.match(/^(\d+)(?:\s*[\-\s\_]\s*)(.*)$/) || combinedField.match(/^(\d+)\s+(.*)$/);
+            if (match) {
+              finalCode = match[1].trim();
+              finalName = match[2].trim();
+            } else {
+              finalName = combinedField;
+            }
+          }
+        }
+
+        if (finalCode && finalName) {
+          rows.push({
+            'Code': finalCode,
+            'Chemist Name': finalName,
+            'Division': division,
+            'NAME OF ROUTE': clean['Name Of Rute'] || clean['Name Of Route'] || clean['NAME OF ROUTE'] || clean['Route'] || '',
+            'ADRESS': clean['Address'] || clean['ADRESS'] || clean['ADDRESS'] || '',
+            'TR CODE': clean['Territory ID'] || clean['TR CODE'] || clean['Tr Code'] || '',
+            'TR NAME': clean['Territory Name'] || clean['TR NAME'] || clean['Tr Name'] || '',
+            'CATEGORY': clean['Category Name'] || clean['CATEGORY'] || '',
+            'Total Amount': clean['Total Amount'] || '',
+            'Total OS': clean['Total OS'] || ''
+          });
+        }
+      }
+    }
+
+    if (!rows.length) {
+      showError('CSV থেকে কোনো আইডি বা নাম আলাদা করা যায়নি। কলাম ফরম্যাট চেক করুন।');
+      return;
+    }
+
+    log(`ফিল্টার করার পর প্রস্তুত রেকর্ড: ${rows.length}`);
+    progressWrap.style.display = 'block';
+
+    // ==================== SMART AUTO-FILL LOGIC ====================
+    if (targetDb === 'Chemist_Wise_Unpaid') {
+      log('মাস্টার লিস্ট থেকে কেমিস্টদের তথ্য খোঁজা হচ্ছে...');
+
+      const LOOKUP_BATCH = 20;
+      let notFoundCount = 0;
+
+      for (let i = 0; i < rows.length; i += LOOKUP_BATCH) {
+        const chunk = rows.slice(i, i + LOOKUP_BATCH);
+
+        await Promise.all(chunk.map(async (row) => {
+          const code = row['Code']?.trim();
+          if (!code) return;
+
+          try {
+            const querySnap = await db.collection(`Chemist_List/${division}/clients`)
+              .where('Code', '==', code)
+              .limit(1)
+              .get();
+
+            if (!querySnap.empty) {
+              const masterData = querySnap.docs[0].data();
+              row['NAME OF ROUTE'] = masterData['NAME OF ROUTE'] || masterData['Route'] || '';
+              row['ADRESS'] = masterData['ADRESS'] || masterData['Address'] || '';
+              row['TR CODE'] = masterData['TR CODE'] || masterData['Tr Code'] || '';
+              row['TR NAME'] = masterData['TR NAME'] || masterData['Tr Name'] || '';
+            } else {
+              notFoundCount++;
+              log(`সতর্কতা: ID ${code} মাস্টার লিস্টে নেই।`);
+            }
+          } catch (e) {
+            console.error(`Error fetching ID ${code}:`, e);
+            log(`এরর: ID ${code} খুঁজতে সমস্যা হয়েছে।`);
+          }
+        }));
+
+        const doneSoFar = Math.min(i + LOOKUP_BATCH, rows.length);
+        const lookupPct = Math.round((doneSoFar / rows.length) * 40);
+        barFill.style.width = lookupPct + '%';
+        progressText.textContent = `মিলানো হচ্ছে: ${doneSoFar} / ${rows.length}`;
+      }
+
+      log(`তথ্য মেলানোর কাজ শেষ। মিলেনি: ${notFoundCount} টি।`);
+    }
+
+    // ==================== টার্গেট রেফারেন্স নির্ধারণ ====================
+    let mode;
+    let targetCollectionRef = null;
+    let displayPath = '';
+    let rtdb = null;
+    let rtdbRootPath = '';
+
+    if (targetDb === 'RTDB_Route_Update' || targetDb === 'RTDB_Employee_List') {
+      mode = 'rtdb';
+      rtdb = firebase.database(app);
+      rtdbRootPath = (targetDb === 'RTDB_Route_Update')
+        ? `Rute_Name`
+        : `Employee_List/${employeeCategory}`;
+    } else {
+      mode = 'firestore';
+      displayPath = (targetDb === 'Chemist_Wise_Unpaid')
+        ? `DCC_UNPAID/${division}/${yearStr}/${monthStr}/${formattedDateStr}`
+        : `Chemist_List/${division}/clients`;
+      targetCollectionRef = db.collection(displayPath);
+    }
+
+    // ==================== EXISTENCE CHECK + ROUTE LIST (Route ড্রপডাউনের জন্য) ====================
+    log('আগে থেকে ডাটা আছে কিনা যাচাই করা হচ্ছে...');
+    const [existsMap] = await Promise.all([
+      (mode === 'firestore')
+        ? checkExistenceFirestore(targetCollectionRef, rows, (done, total) => {
+            const pct = 40 + Math.round((done / total) * 40);
+            barFill.style.width = pct + '%';
+            progressText.textContent = `যাচাই হচ্ছে: ${done} / ${total}`;
+          }, isRouteUpdate, isEmployeeList)
+        : checkExistenceRTDB(rtdb, rtdbRootPath, rows, (done, total) => {
+            const pct = 40 + Math.round((done / total) * 40);
+            barFill.style.width = pct + '%';
+            progressText.textContent = `যাচাই হচ্ছে: ${done} / ${total}`;
+          }, isRouteUpdate, isEmployeeList),
+      // Route Update নিজেই রুট লিস্ট তৈরি করছে, তাই dropdown-এর জন্য আলাদা করে রুট লিস্ট আনার দরকার নাই
+      (isRouteUpdate || isEmployeeList) ? Promise.resolve([]) : fetchRouteList().then(list => { routeOptionsList = list; })
+    ]);
+
+    const newRows = [];
+    const existingRows = [];
+    rows.forEach(row => {
+      const docId = buildDocId(row, isRouteUpdate, isEmployeeList);
+      if (existsMap[docId]) existingRows.push(row);
+      else newRows.push(row);
+    });
+
+    log(`নতুন রেকর্ড: ${newRows.length} টি। আগে থেকে আছে: ${existingRows.length} টি।`);
+    barFill.style.width = '80%';
+
+    pendingState = { targetDb, division, employeeCategory, isRouteUpdate, isEmployeeList, mode, targetCollectionRef, displayPath, rtdb, rtdbRootPath, newRows, existingRows };
+
+    newCountEl.textContent = newRows.length;
+    existingCountEl.textContent = existingRows.length;
+
+    if (newRows.length > 0) {
+      renderPreviewTable(newRows, isRouteUpdate, isEmployeeList);
+      previewWrap.style.display = 'block';
+      previewInfoLineEl.innerHTML = (targetDb === 'Chemist_List')
+        ? `নিচের টেবিলে শুধু <strong>নতুন</strong> রেকর্ডগুলো দেখানো হচ্ছে — এগুলো প্রয়োজনে এডিট করে নিন। আগে থেকেই থাকা <span id="existingCount">${existingRows.length}</span> টি রেকর্ড এখানে দেখানো হচ্ছে না এবং Confirm করলেও সেগুলো স্পর্শ করা হবে না — শুধু এই নতুন রেকর্ডগুলোই সেভ হবে।`
+        : `নিচের টেবিলে শুধু <strong>নতুন</strong> রেকর্ডগুলো দেখানো হচ্ছে — এগুলো প্রয়োজনে এডিট করে নিন। আগে থেকেই থাকা <span id="existingCount">${existingRows.length}</span> টি রেকর্ড এখানে দেখানো হচ্ছে না, সেগুলো Confirm করলে ব্যাকগ্রাউন্ডে স্বয়ংক্রিয়ভাবে আপডেট (মার্জ) হয়ে যাবে।`;
+      log('নতুন রেকর্ডগুলো নিচে টেবিলে দেখানো হয়েছে। প্রয়োজনে এডিট করে Confirm করুন।');
+      barFill.style.width = '80%';
+      progressText.textContent = `Confirm করার অপেক্ষায়...`;
+    } else if (targetDb === 'Chemist_List') {
+      log('কোনো নতুন রেকর্ড নেই — CHEMIST LIST-এ আগের রেকর্ড অপরিবর্তিত থাকবে, কিছুই রি-আপলোড হবে না।');
+      barFill.style.width = '100%';
+      progressText.textContent = `০ / ০`;
+      successBox.style.display = 'block';
+      successBox.textContent = 'কোনো নতুন রেকর্ড পাওয়া যায়নি — CHEMIST LIST-এ আপলোড করার কিছু নেই।';
+      pendingState = null;
+    } else {
+      log('কোনো নতুন রেকর্ড নেই — শুধু আগের রেকর্ড আপডেট হবে। আপলোড হচ্ছে...');
+      await performUpload(existingRows, pendingState);
+      pendingState = null;
+    }
+
+  } catch (err) {
+    console.error(err);
+    showError('যাচাই ব্যর্থ হয়েছে: ' + (err && err.message ? err.message : String(err)));
+  } finally {
+    uploadBtn.disabled = false;
+    uploadBtn.textContent = 'যাচাই করুন (Check & Preview)';
+  }
+});
+
+// ==================== ধাপ ২: Confirm করে আসল আপলোড ====================
+confirmUploadBtn.addEventListener('click', async () => {
+  if (!pendingState) return;
+
+  clearMessages();
+  const editedNewRows = readEditedNewRows(pendingState.newRows);
+
+  const routeFieldName = pendingState.isRouteUpdate ? 'NAME' : 'NAME OF ROUTE';
+  const emptyRouteIndexes = [];
+  if (!pendingState.isEmployeeList && !pendingState.isRouteUpdate) {
+    editedNewRows.forEach((row, idx) => {
+      if (!row[routeFieldName] || !row[routeFieldName].trim()) emptyRouteIndexes.push(idx);
+    });
+  }
+
+  if (emptyRouteIndexes.length > 0) {
+    showError(`${emptyRouteIndexes.length} টি রেকর্ডে Route সিলেক্ট করা হয়নি। আপলোড করার আগে সব রো-এর জন্য Route বেছে নিন (লাল বর্ডার করা সেলগুলো দেখুন)।`);
+
+    const routeFieldEls = previewBody.querySelectorAll(`[data-field="${routeFieldName}"]`);
+    routeFieldEls.forEach(el => el.style.border = '');
+    routeFieldEls.forEach(el => {
+      const idx = parseInt(el.dataset.rowIndex, 10);
+      if (emptyRouteIndexes.includes(idx)) {
+        el.style.border = '1.5px solid var(--error)';
+      }
+    });
+    return;
+  }
+
+  confirmUploadBtn.disabled = true;
+  cancelPreviewBtn.disabled = true;
+  confirmUploadBtn.textContent = 'আপলোড হচ্ছে...';
+
+  try {
+    const allRows = (pendingState.targetDb === 'Chemist_List')
+      ? editedNewRows
+      : pendingState.existingRows.concat(editedNewRows);
+    await performUpload(allRows, pendingState);
+    previewWrap.style.display = 'none';
+    pendingState = null;
+  } catch (err) {
+    console.error(err);
+    showError('আপলোড ব্যর্থ হয়েছে: ' + (err && err.message ? err.message : String(err)));
+  } finally {
+    confirmUploadBtn.disabled = false;
+    cancelPreviewBtn.disabled = false;
+    confirmUploadBtn.textContent = 'Confirm & আপলোড করুন';
+  }
+});
+
+cancelPreviewBtn.addEventListener('click', () => {
+  previewWrap.style.display = 'none';
+  pendingState = null;
+  log('আপলোড বাতিল করা হয়েছে।');
+});
+
+// ==================== আসল আপলোড (Firestore ব্যাচ বা RTDB update) ====================
+async function performUpload(allRows, state) {
+  const { mode, targetCollectionRef, displayPath, rtdb, rtdbRootPath, targetDb, division, employeeCategory, isRouteUpdate, isEmployeeList } = state;
+
+  progressWrap.style.display = 'block';
+  clearMessages();
+
+  if (!allRows.length) {
+    successBox.style.display = 'block';
+    successBox.textContent = 'আপলোড করার কোনো রেকর্ড নেই।';
+    return;
+  }
+
+  if (mode === 'rtdb') {
+    const updateObject = {};
+    allRows.forEach(row => {
+      const docId = buildDocId(row, isRouteUpdate, isEmployeeList);
+      updateObject[docId] = row;
+    });
+
+    if (targetDb === 'RTDB_Route_Update') {
+      // Rute_Name পাথের নিচেই সরাসরি প্রতিটা রুট এন্ট্রি বসে, তাই এখানে আলাদা মেটাডাটা কী লেখা হয় না
+      await rtdb.ref(rtdbRootPath).update(updateObject);
+    } else {
+      updateObject['category'] = employeeCategory;
+      updateObject['total_records'] = allRows.length;
+      await rtdb.ref(rtdbRootPath).update(updateObject);
+    }
+
+    barFill.style.width = '100%';
+    progressText.textContent = `${allRows.length} / ${allRows.length}`;
+    successBox.style.display = 'block';
+    successBox.textContent = `✅ সফলভাবে RTDB তে সেভ হয়েছে! (মোট ${allRows.length} টি)`;
+
+  } else {
+    const BATCH_SIZE = 300;
+    let uploaded = 0;
+
+    for (let i = 0; i < allRows.length; i += BATCH_SIZE) {
+      const chunk = allRows.slice(i, i + BATCH_SIZE);
+      const batch = db.batch();
+
+      chunk.forEach(row => {
+        const docId = buildDocId(row, false, false);
+        const docRef = targetCollectionRef.doc(docId);
+        batch.set(docRef, row, { merge: true });
+      });
+
+      await batch.commit();
+      uploaded += chunk.length;
+
+      const pct = Math.round((uploaded / allRows.length) * 100);
+      barFill.style.width = pct + '%';
+      progressText.textContent = `${uploaded} / ${allRows.length}`;
+      log(`ফায়ারস্টোরে আপলোড হচ্ছে: ${uploaded}/${allRows.length}`);
+    }
+
+    successBox.style.display = 'block';
+    successBox.textContent = `✅ সফলভাবে '${displayPath}' এ ডাটা আপলোড সম্পন্ন হয়েছে! (মোট ${allRows.length} টি)`;
+  }
+}
+</script>
+</body>
+</html>
