@@ -35,7 +35,7 @@
     color: var(--ink);
     padding: 54px 16px 90px;
   }
-  .wrap { max-width: 540px; margin: 0 auto; }
+  .wrap { max-width: 680px; margin: 0 auto; }
 
   .brand { display: flex; flex-direction: column; align-items: center; margin-bottom: 28px; }
   .brand-mark { width: 44px; height: 44px; margin-bottom: 12px; }
@@ -62,7 +62,7 @@
   }
   input[type="file"] { padding: 9px 13px; cursor: pointer; }
   input[type="file"]::file-selector-button {
-    background: var(--accent-soft); color: var(--accent-dark); border: none; border-radius: 6px; padding: 7px 12px; font-weight: 600; font-size: 13px; margin-right: 10px; cursor: pointer; font-family: inherit; transition: background 0.15s ease;
+    background: var(--accent-soft); color: var(--accent-dark); border: none; border-radius: 6px; padding: 7px 12px; font-weight: 400; font-size: 13px; margin-right: 10px; cursor: pointer; font-family: inherit; transition: background 0.15s ease;
   }
   input[type="file"]::file-selector-button:hover { background: #d6e7dc; }
   select {
@@ -127,24 +127,82 @@
   .dp-grid button.dp-today { border: 1.5px solid var(--waypoint); }
   .dp-grid button.dp-selected { background: var(--accent); color: #fff; font-weight: 700; }
 
-  #headerHint {
-    display: none;
-    background: var(--waypoint-soft);
-    border: 1px solid #ecd2b3;
-    color: var(--ink);
-    padding: 13px 15px;
-    border-radius: 10px;
-    font-size: 12.5px;
-    line-height: 1.7;
-    margin: 6px 0 18px;
+  /* ==== Generic custom dropdown (replaces native <select> for full style control) ==== */
+  .cselect-wrap { position: relative; }
+  .cselect-panel {
+    position: absolute; top: calc(100% + 8px); left: 0; right: 0; z-index: 30;
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: var(--shadow); padding: 6px; display: none; max-height: 240px; overflow-y: auto;
   }
-  #headerHint .hint-title { font-weight: 700; color: #8a501f; margin-bottom: 5px; }
-  #headerHint ul { margin: 4px 0 0; padding-left: 18px; }
-  #headerHint li { margin-bottom: 3px; }
-  #headerHint code {
-    background: #fff; padding: 1.5px 6px; border-radius: 4px; font-size: 12px; color: var(--accent-dark); border: 1px solid #ecd2b3;
+  .cselect-panel.open { display: block; }
+  .cselect-option {
+    display: block; width: 100%; text-align: left; padding: 9px 12px; margin-bottom: 2px;
+    border-radius: 7px; font-size: 14px; font-weight: 400; font-family: inherit;
+    background: transparent; color: var(--ink); border: none; cursor: pointer;
   }
-  #headerHint .hint-note { color: var(--muted); margin-top: 7px; font-style: italic; }
+  .cselect-option:last-child { margin-bottom: 0; }
+  .cselect-option:hover { background: var(--accent-soft); }
+  .cselect-option.cselect-selected { background: var(--accent); color: #fff; font-weight: 700; }
+  .cselect-trigger-label { flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .hint-link-wrap { display: none; margin: 4px 0 18px; }
+  .hint-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--waypoint-soft); border: 1px solid #ecd2b3; color: #8a501f;
+    padding: 8px 13px; border-radius: 8px; font-size: 12.5px; font-weight: 700;
+    cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .hint-link:hover { background: #f2dfc4; border-color: #e2bd8c; }
+  .hint-link svg { flex-shrink: 0; }
+
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(28,43,36,0.42);
+    z-index: 100; align-items: center; justify-content: center; padding: 20px;
+    backdrop-filter: blur(1.5px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: #fff; border-radius: 16px; max-width: 560px; width: 100%;
+    max-height: 82vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px -12px rgba(28,43,36,0.35);
+    animation: modalPop 0.16s ease;
+  }
+  @keyframes modalPop { from { opacity: 0; transform: translateY(6px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 20px 14px; border-bottom: 1px solid var(--line-soft);
+  }
+  .modal-header span { font-weight: 700; font-size: 15px; color: var(--ink); }
+  .modal-close {
+    width: 30px; height: 30px; margin: 0; padding: 0; border-radius: 8px;
+    background: var(--line-soft); color: var(--ink-soft); font-size: 16px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; border: none;
+  }
+  .modal-close:hover { background: var(--line); }
+  .modal-body { padding: 18px 20px 22px; overflow-y: auto; font-size: 13px; line-height: 1.8; color: var(--ink); }
+  .modal-body .hint-title { font-weight: 700; color: var(--accent-dark); font-size: 14px; margin-bottom: 10px; }
+  .modal-body ul { margin: 0; padding-left: 20px; }
+  .modal-body li { margin-bottom: 7px; }
+  .hint-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 4px; }
+  .hint-table thead th {
+    text-align: left; background: var(--line-soft); color: var(--ink-soft); font-weight: 700;
+    padding: 8px 10px; border-bottom: 1.5px solid var(--line); white-space: nowrap;
+  }
+  .hint-table thead th:first-child { border-top-left-radius: 8px; }
+  .hint-table thead th:last-child { border-top-right-radius: 8px; }
+  .hint-table tbody td { padding: 9px 10px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  .hint-table tbody tr:last-child td { border-bottom: none; }
+  .hint-table tbody tr:nth-child(even) { background: #fafbf9; }
+  .hint-table td.req-yes { color: var(--error); font-weight: 700; white-space: nowrap; }
+  .hint-table td.req-no { color: var(--muted); font-weight: 600; white-space: nowrap; }
+  .hint-table td.req-alt { color: var(--waypoint); font-weight: 600; white-space: nowrap; }
+  .modal-body code {
+    background: var(--accent-soft); padding: 2px 7px; border-radius: 5px; font-size: 12.5px;
+    color: var(--accent-dark); border: 1px solid #cfe3d7; font-family: "IBM Plex Mono", monospace;
+  }
+  .modal-body .hint-note {
+    color: var(--muted); margin-top: 14px; font-style: italic; padding-top: 12px;
+    border-top: 1px dashed var(--line); line-height: 1.7;
+  }
 
   .preview-wrap { margin-top: 26px; display: none; }
   .preview-wrap h3 { font-size: 15.5px; margin: 0 0 5px; font-weight: 700; }
@@ -174,34 +232,20 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="brand">
-    <svg class="brand-mark" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="24" cy="24" r="22" fill="#e6f0ea"/>
-      <path d="M24 12c-5 0-9 3.8-9 9 0 6.5 9 15 9 15s9-8.5 9-15c0-5.2-4-9-9-9z" fill="#2f6f4f"/>
-      <circle cx="24" cy="21" r="3.4" fill="#ffffff"/>
-    </svg>
-    <h1>Chemist & Route Smart Uploader</h1>
-    <p class="sub">মাস্টার লিস্ট থেকে ফাঁকা ফিল্ড অটো-পূরণ করে আপলোড করুন</p>
-    <svg class="route-divider" width="220" height="14" viewBox="0 0 220 14" xmlns="http://www.w3.org/2000/svg">
-      <line x1="6" y1="7" x2="214" y2="7" stroke="#dde3dc" stroke-width="2" stroke-dasharray="1 7" stroke-linecap="round"/>
-      <circle cx="6" cy="7" r="4" fill="#c9793a"/>
-      <circle cx="110" cy="7" r="3" fill="#2f6f4f"/>
-      <circle cx="214" cy="7" r="4" fill="#2f6f4f"/>
-    </svg>
-  </div>
+ 
 
   <div class="card">
     <div class="row3">
       <div>
-        <label>CSV ফাইল সিলেক্ট করুন</label>
+        <label> File Choose </label>
         <input type="file" id="csvFile" accept=".csv">
       </div>
       <div>
-        <label>Database Destination </label>
+        <label> Destination </label>
         <select id="collectionName">
-          <option value="" disabled selected>-- ডেস্টিনেশন সিলেক্ট করুন --</option>
+          <option value="" disabled selected>Select Destination</option>
           <option value="Chemist_List">CHEMIST LIST (Firestore)</option>
-          <option value="Chemist_Wise_Unpaid">13. F Chemist wise outstanding</option>
+          <option value="Chemist_Wise_Unpaid">13.F Chemist wise outstanding (Firestore)</option>
           <option value="RTDB_Route_Update">ROUTE UPDATE (Realtime Database)</option>
           <option value="RTDB_Employee_List">EMPLOYEE LIST UPDATE (Realtime Database)</option>
         </select>
@@ -210,7 +254,7 @@
         <label>Unpaid Data Date </label>
         <div class="date-picker" id="datePickerWrap">
           <button type="button" class="date-picker-trigger" id="datePickerTrigger">
-            <span id="datePickerLabel">তারিখ নির্বাচন করুন</span>
+            <span id="datePickerLabel">Select Date</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           </button>
           <input type="hidden" id="unpaidDate">
@@ -229,13 +273,18 @@
       </div>
     </div>
 
-    <div id="headerHint"></div>
+    <div class="hint-link-wrap" id="hintLinkWrap">
+      <span class="hint-link" id="hintLinkBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="11"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        Check which columns are needed in the 
+      </span>
+    </div>
 
     <div class="row3">
       <div id="divisionWrapper">
         <label>Division</label>
         <select id="division">
-          <option value="" disabled selected>-- ডিভিশন সিলেক্ট করুন --</option>
+          <option value="" disabled selected>--Select Division--</option>
           <option value="pharma">PHARMA</option>
           <option value="inm">INM</option>
           <option value="isv">ISV</option>
@@ -244,7 +293,7 @@
       <div id="employeeCategoryWrapper" style="display:none;">
         <label>Employee Category</label>
         <select id="employeeCategory">
-          <option value="" disabled selected>-- ক্যাটেগরি সিলেক্ট করুন --</option>
+          <option value="" disabled selected>--Select Category--</option>
           <option value="DR">DR</option>
           <option value="OFFICE_STAFF">OFFICE STAFF</option>
           <option value="FIELD_FORCE">FIELD FORCE</option>
@@ -254,7 +303,7 @@
         <label>Junk Header</label>
         <input type="text" id="skipRows" placeholder="0">
       </div>
-      <button id="uploadBtn">যাচাই করুন (Check & Preview)</button>
+      <button id="uploadBtn">Check Now</button>
     </div>
 
     <div class="progress-wrap" id="progressWrap">
@@ -264,12 +313,12 @@
     
     <div class="error-box" id="errorBox"></div>
     <div class="success-box" id="successBox"></div>
-    <div id="log">সিস্টেম রেডি। ফাইল সিলেক্ট করুন।</div>
+    <div id="log">System ready. Please select a file.</div>
   </div>
 
   <div class="preview-wrap" id="previewWrap">
-    <h3>নতুন রেকর্ড: <span id="newCount">0</span> টি</h3>
-    <p class="info-line" id="previewInfoLine">নিচের টেবিলে শুধু <strong>নতুন</strong> রেকর্ডগুলো দেখানো হচ্ছে — এগুলো প্রয়োজনে এডিট করে নিন। আগে থেকেই থাকা <span id="existingCount">0</span> টি রেকর্ড এখানে দেখানো হচ্ছে না, সেগুলো Confirm করলে ব্যাকগ্রাউন্ডে স্বয়ংক্রিয়ভাবে আপডেট (মার্জ) হয়ে যাবে।</p>
+    <h3>NEW RECORD: <span id="newCount">0</span> </h3>
+    <p class="info-line" id="previewInfoLine">নিচের টেবlে শুধু <strong>নতুন</strong> রেকর্ডগুলো দেখানো হচ্ছে — এগুলো প্রয়োজনে এডিট করে নিন। আগে থেকেই থাকা <span id="existingCount">0</span>  রেকরড এখানে দেখানো হচ্ছে না, সেগুলো Confirm করলে ব্যাকগ্রাউন্ডে স্বয়ংক্রিয়ভাবে আপডেট (মার্জ) হয়ে यাবে।</p>
     <div class="table-scroll">
       <table id="previewTable">
         <thead><tr id="previewHeadRow"></tr></thead>
@@ -277,9 +326,19 @@
       </table>
     </div>
     <div class="preview-actions">
-      <button id="confirmUploadBtn">Confirm &amp; আপলোড করুন</button>
+      <button id="confirmUploadBtn">Confirm &amp; Upload </button>
       <button id="cancelPreviewBtn">Cancel</button>
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="hintModalOverlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span>Required Columns</span>
+      <button type="button" class="modal-close" id="hintModalClose">✕</button>
+    </div>
+    <div class="modal-body" id="hintModalBody"></div>
   </div>
 </div>
 
@@ -311,7 +370,11 @@ const dateSection = document.getElementById('dateSection');
 const divisionWrapper = document.getElementById('divisionWrapper');
 const employeeCategoryWrapper = document.getElementById('employeeCategoryWrapper');
 const employeeCategorySelect = document.getElementById('employeeCategory');
-const headerHintEl = document.getElementById('headerHint');
+const hintLinkWrap = document.getElementById('hintLinkWrap');
+const hintLinkBtn = document.getElementById('hintLinkBtn');
+const hintModalOverlay = document.getElementById('hintModalOverlay');
+const hintModalBody = document.getElementById('hintModalBody');
+const hintModalClose = document.getElementById('hintModalClose');
 const unpaidDateInput = document.getElementById('unpaidDate');
 const logEl = document.getElementById('log');
 
@@ -465,7 +528,7 @@ async function fetchRouteList() {
       });
     }
 
-    log(`[DEBUG] রুট লিস্ট আনা শেষ (${Date.now() - startedAt}ms) — ${routesSet.size} টি রুট পাওয়া গেছে।`);
+    log(`[DEBUG] রুট লিস্ট আনা শেষ (${Date.now() - startedAt}ms) — ${routesSet.size}  রুট পাওয়া গেছে।`);
     return Array.from(routesSet).sort((a, b) => a.localeCompare(b));
   } catch (e) {
     console.error('রুট লিস্ট আনতে সমস্যা:', e);
@@ -490,59 +553,88 @@ function updateDivisionVisibility() {
 const HEADER_HINTS = {
   Chemist_List: `
     <div class="hint-title">CHEMIST LIST — যেসব কলাম দরকার</div>
-    <ul>
-      <li><code>Client ID</code> বা <code>Code</code> — কেমিস্টের কোড (আবশ্যক)</li>
-      <li><code>Name</code> বা <code>Chemist Name</code> — কেমিস্টের নাম (আবশ্যক)</li>
-      <li>অথবা একটাই কলামে <code>Code | Name</code> বা <code>Code - Name</code> ফরম্যাটে দিলেও চলবে</li>
-      <li><code>Route</code> / <code>Name Of Route</code> — রুটের নাম (ঐচ্ছিক)</li>
-      <li><code>Address</code> — ঠিকানা (ঐচ্ছিক)</li>
-      <li><code>Territory ID</code> — টেরিটরি কোড (ঐচ্ছিক)</li>
-      <li><code>Territory Name</code> — টেরিটরির নাম (ঐচ্ছিক)</li>
-      <li><code>Category Name</code> — ক্যাটাগরি (ঐচ্ছিক)</li>
-    </ul>
+    <table class="hint-table">
+      <thead><tr><th>কলাম</th><th>প্রয়োজন</th><th>বিবরণ</th></tr></thead>
+      <tbody>
+        <tr><td><code>Client ID</code> / <code>Code</code></td><td class="req-yes">আবশ্যক</td><td>কেমিস্টের কোড</td></tr>
+        <tr><td><code>Name</code> / <code>Chemist Name</code></td><td class="req-yes">আবশ্যক</td><td>কেমিস্টের নাম</td></tr>
+        <tr><td><code>Code | Name</code></td><td class="req-alt">বিকল্প</td><td>একটাই কলামে <code>Code | Name</code> বা <code>Code - Name</code> ফরম্যাটে দিলেও চলবে</td></tr>
+        <tr><td><code>Route</code> / <code>Name Of Route</code></td><td class="req-no">ঐচ্ছিক</td><td>রুটের নাম</td></tr>
+        <tr><td><code>Address</code></td><td class="req-no">ঐচ্ছিক</td><td>ঠিকানা</td></tr>
+        <tr><td><code>Territory ID</code></td><td class="req-no">ঐচ্ছিক</td><td>টেরিটরি কোড</td></tr>
+        <tr><td><code>Territory Name</code></td><td class="req-no">ঐচ্ছিক</td><td>টেরিটরির নাম</td></tr>
+        <tr><td><code>Category Name</code></td><td class="req-no">ঐচ্ছিক</td><td>ক্যাটাগরি</td></tr>
+      </tbody>
+    </table>
     <div class="hint-note">নমুনা: Code, Name, Route, Address, Territory ID, Territory Name, Category Name</div>
   `,
   Chemist_Wise_Unpaid: `
     <div class="hint-title">13. F Chemist wise outstanding — যেসব কলাম দরকার</div>
-    <ul>
-      <li><code>Client ID</code> বা <code>Code</code> — কেমিস্টের কোড (আবশ্যক)</li>
-      <li><code>Name</code> বা <code>Chemist Name</code> — কেমিস্টের নাম (আবশ্যক)</li>
-      <li><code>Total Amount</code> — মোট বিলের পরিমাণ</li>
-      <li><code>Total OS</code> — মোট বকেয়া (Outstanding)</li>
-    </ul>
+    <table class="hint-table">
+      <thead><tr><th>কলাম</th><th>প্রয়োজন</th><th>বিবরণ</th></tr></thead>
+      <tbody>
+        <tr><td><code>Client ID</code> / <code>Code</code></td><td class="req-yes">আবশ্যক</td><td>কেমিস্টের কোড</td></tr>
+        <tr><td><code>Name</code> / <code>Chemist Name</code></td><td class="req-yes">আবশ্যক</td><td>কেমিস্টের নাম</td></tr>
+        <tr><td><code>Total Amount</code></td><td class="req-no">ঐচ্ছিক</td><td>মোট বিলের পরিমাণ</td></tr>
+        <tr><td><code>Total OS</code></td><td class="req-no">ঐচ্ছিক</td><td>মোট বকেয়া (Outstanding)</td></tr>
+      </tbody>
+    </table>
     <div class="hint-note">Route, Address, Territory, Category এখানে লাগবে না — এগুলো মাস্টার লিস্ট (CHEMIST LIST) থেকে অটো বসে যাবে, যদি সেই কোড আগে থেকে CHEMIST LIST-এ থাকে।</div>
   `,
   RTDB_Route_Update: `
     <div class="hint-title">ROUTE UPDATE — যেসব কলাম দরকার</div>
-    <ul>
-      <li>শুধু <strong>১টা কলাম</strong> — রুটের নাম। হেডারের নাম যা-ই থাকুক, প্রথম কলামের মানটাই নেওয়া হবে</li>
-    </ul>
+    <table class="hint-table">
+      <thead><tr><th>কলাম</th><th>প্রয়োজন</th><th>বিবরণ</th></tr></thead>
+      <tbody>
+        <tr><td>১ম কলাম (যেকোনো নামে)</td><td class="req-yes">আবশ্যক</td><td>শুধু <strong>১টা কলাম</strong> — রুটের নাম। হেডারের নাম যা-ই থাকুক, প্রথম কলামের মানটাই নেওয়া হবে</td></tr>
+      </tbody>
+    </table>
     <div class="hint-note">SL NO স্বয়ংক্রিয়ভাবে যোগ হয়ে যাবে, আলাদা করে দিতে হবে না। Division-ও লাগবে না।</div>
   `,
   RTDB_Employee_List: `
     <div class="hint-title">EMPLOYEE LIST UPDATE — যেসব কলাম দরকার</div>
-    <ul>
-      <li>প্রথম দুইটা কলাম (A ও B) — এই দুইটা মিলিয়ে ইউনিক আইডি তৈরি হবে, সাধারণত <code>IPI NO</code> ও <code>NAME</code></li>
-      <li><code>IPI NO</code> — কর্মীর আইডি (আবশ্যক, কলাম A)</li>
-      <li><code>NAME</code> — নাম (আবশ্যক, কলাম B)</li>
-      <li><code>DESIGNATION</code> — পদবি</li>
-      <li><code>JOINING DATE</code> — যোগদানের তারিখ</li>
-      <li><code>TERRITORY CODE</code> — টেরিটরি কোড</li>
-      <li><code>TERRITORY NAME</code> — টেরিটরির নাম</li>
-      <li><code>AREA CODE</code> — এরিয়া কোড</li>
-      <li><code>AREA NAME</code> — এরিয়ার নাম</li>
-      <li><code>ZONE CODE</code> — জোন কোড</li>
-      <li><code>ZONE NAME</code> — জোনের নাম</li>
-    </ul>
+    <table class="hint-table">
+      <thead><tr><th>কলাম</th><th>প্রয়োজন</th><th>বিবরণ</th></tr></thead>
+      <tbody>
+        <tr><td><code>IPI NO</code> (কলাম A)</td><td class="req-yes">আবশ্যক</td><td>কর্মীর আইডি — NAME-এর সাথে মিলিয়ে ইউনিক আইডি তৈরি করে</td></tr>
+        <tr><td><code>NAME</code> (কলাম B)</td><td class="req-yes">আবশ্যক</td><td>কর্মীর নাম</td></tr>
+        <tr><td><code>DESIGNATION</code></td><td class="req-no">ঐচ্ছিক</td><td>পদবি</td></tr>
+        <tr><td><code>JOINING DATE</code></td><td class="req-no">ঐচ্ছিক</td><td>যোগদানের তারিখ</td></tr>
+        <tr><td><code>TERRITORY CODE</code></td><td class="req-no">ঐচ্ছিক</td><td>টেরিটরি কোড</td></tr>
+        <tr><td><code>TERRITORY NAME</code></td><td class="req-no">ঐচ্ছিক</td><td>টেরিটরির নাম</td></tr>
+        <tr><td><code>AREA CODE</code></td><td class="req-no">ঐচ্ছিক</td><td>এরিয়া কোড</td></tr>
+        <tr><td><code>AREA NAME</code></td><td class="req-no">ঐচ্ছিক</td><td>এরিয়ার নাম</td></tr>
+        <tr><td><code>ZONE CODE</code></td><td class="req-no">ঐচ্ছিক</td><td>জোন কোড</td></tr>
+        <tr><td><code>ZONE NAME</code></td><td class="req-no">ঐচ্ছিক</td><td>জোনের নাম</td></tr>
+      </tbody>
+    </table>
     <div class="hint-note">উপরে Employee Category (DR / OFFICE STAFF / FIELD FORCE) সিলেক্ট করে দিন — একই ব্যাচের সবাইকে একই ক্যাটেগরিতে সেভ করা হবে। CSV হেডারের বানানে সামান্য পার্থক্য (যেমন TRRITORY CO, TRITORY NAME) থাকলেও অটো মিলিয়ে নেওয়া হবে।</div>
   `
 };
 
 function updateHeaderHint() {
   const hint = HEADER_HINTS[collectionSelect.value] || '';
-  headerHintEl.innerHTML = hint;
-  headerHintEl.style.display = hint ? 'block' : 'none';
+  hintModalBody.innerHTML = hint;
+  hintLinkWrap.style.display = hint ? 'block' : 'none';
+  if (!hint) hintModalOverlay.classList.remove('open');
 }
+
+function openHintModal() {
+  if (!hintModalBody.innerHTML.trim()) return;
+  hintModalOverlay.classList.add('open');
+}
+function closeHintModal() {
+  hintModalOverlay.classList.remove('open');
+}
+
+hintLinkBtn.addEventListener('click', openHintModal);
+hintModalClose.addEventListener('click', closeHintModal);
+hintModalOverlay.addEventListener('click', (e) => {
+  if (e.target === hintModalOverlay) closeHintModal();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeHintModal();
+});
 
 collectionSelect.addEventListener('change', () => {
   if (collectionSelect.value === 'Chemist_Wise_Unpaid') {
@@ -556,6 +648,81 @@ collectionSelect.addEventListener('change', () => {
 
 updateDivisionVisibility();
 updateHeaderHint();
+
+// ==================== নেটিভ <select> কে কাস্টম ড্রপডাউনে রূপান্তর (সব একই স্টাইলে) ====================
+// Date picker-এর ট্রিগার/প্যানেল স্টাইল পুনর্ব্যবহার করা হয়েছে, যাতে সব ড্রপডাউন একদম একরকম দেখায়
+function enhanceSelect(selectEl) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'cselect-wrap';
+
+  const trigger = document.createElement('button');
+  trigger.type = 'button';
+  trigger.className = 'date-picker-trigger';
+  trigger.innerHTML = `<span class="cselect-trigger-label"></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+  const labelSpan = trigger.querySelector('.cselect-trigger-label');
+
+  const panel = document.createElement('div');
+  panel.className = 'cselect-panel';
+
+  function renderLabel() {
+    const opt = selectEl.options[selectEl.selectedIndex];
+    labelSpan.textContent = opt ? opt.textContent : '';
+  }
+
+  function renderPanel() {
+    panel.innerHTML = '';
+    Array.from(selectEl.options).forEach(opt => {
+      if (opt.disabled) return; // প্লেসহোল্ডার অপশন লিস্টে দেখানো হয় না
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cselect-option' + (opt.value === selectEl.value ? ' cselect-selected' : '');
+      btn.textContent = opt.textContent;
+      btn.addEventListener('click', () => {
+        selectEl.value = opt.value;
+        selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+        renderLabel();
+        closePanel();
+      });
+      panel.appendChild(btn);
+    });
+  }
+
+  function openPanel() {
+    document.querySelectorAll('.cselect-panel.open').forEach(p => { if (p !== panel) p.classList.remove('open'); });
+    document.querySelectorAll('.date-picker-trigger.open').forEach(t => { if (t !== trigger) t.classList.remove('open'); });
+    renderPanel();
+    panel.classList.add('open');
+    trigger.classList.add('open');
+  }
+  function closePanel() {
+    panel.classList.remove('open');
+    trigger.classList.remove('open');
+  }
+
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (panel.classList.contains('open')) closePanel(); else openPanel();
+  });
+  document.addEventListener('click', (e) => {
+    if (!wrapper.contains(e.target)) closePanel();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closePanel();
+  });
+
+  wrapper.appendChild(trigger);
+  wrapper.appendChild(panel);
+  selectEl.insertAdjacentElement('afterend', wrapper);
+  selectEl.style.display = 'none';
+
+  renderLabel();
+  selectEl.addEventListener('change', renderLabel);
+}
+
+['collectionName', 'division', 'employeeCategory'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) enhanceSelect(el);
+});
 
 function showError(msg) {
   errorBox.style.display = 'block';
@@ -664,7 +831,7 @@ function renderPreviewTable(newRows, isRouteUpdate, isEmployeeList) {
 
         const blankOpt = document.createElement('option');
         blankOpt.value = '';
-        blankOpt.textContent = '-- রুট সিলেক্ট করুন --';
+        blankOpt.textContent = 'Route Select';
         select.appendChild(blankOpt);
 
         if (currentVal && !options.includes(currentVal)) {
@@ -720,14 +887,14 @@ uploadBtn.addEventListener('click', async () => {
   const employeeCategory = isEmployeeList ? employeeCategorySelect.value : '';
   const skipRows = parseInt(document.getElementById('skipRows').value || '0', 10);
 
-  if (!targetDb) { showError('অনুগ্রহ করে Database Destination সিলেক্ট করুন।'); return; }
-  if (!isRouteUpdate && !isEmployeeList && !division) { showError('অনুগ্রহ করে Division সিলেক্ট করুন।'); return; }
-  if (isEmployeeList && !employeeCategory) { showError('অনুগ্রহ করে Employee Category সিলেক্ট করুন।'); return; }
-  if (!fileInput.files.length) { showError('অনুগ্রহ করে একটি CSV ফাইল বেছে নিন।'); return; }
+  if (!targetDb) { showError('Please select a database destination.'); return; }
+  if (!isRouteUpdate && !isEmployeeList && !division) { showError('Please select a division.'); return; }
+  if (isEmployeeList && !employeeCategory) { showError('Please select an employee category.'); return; }
+  if (!fileInput.files.length) { showError('Please select a CSV file.'); return; }
 
   let yearStr, monthStr, formattedDateStr;
   if (targetDb === 'Chemist_Wise_Unpaid') {
-    if (!unpaidDateInput.value) { showError('অনুগ্রহ করে তারিখ সিলেক্ট করুন।'); return; }
+    if (!unpaidDateInput.value) { showError('Please select a date.'); return; }
     const dateData = parseInputDate(unpaidDateInput.value);
     yearStr = dateData.year;
     monthStr = dateData.shortMonth;
@@ -735,8 +902,8 @@ uploadBtn.addEventListener('click', async () => {
   }
 
   uploadBtn.disabled = true;
-  uploadBtn.textContent = 'যাচাই করা হচ্ছে...';
-  log('ফাইল রিড করা হচ্ছে...');
+  uploadBtn.textContent = 'Verifying...';
+  log('Reading file...');
 
   try {
     app = (!firebase.apps || !firebase.apps.length) ? firebase.initializeApp(firebaseConfig) : firebase.app();
@@ -754,7 +921,7 @@ uploadBtn.addEventListener('click', async () => {
     const parsed = Papa.parse(cleanText, { header: true, skipEmptyLines: true });
     const rawRows = parsed.data;
     
-    log(`ফাইলে মোট লাইন পাওয়া গেছে: ${rawRows.length}`);
+    log(`File contains a total of ${rawRows.length} lines`);
 
     const rows = [];
 
@@ -861,16 +1028,16 @@ uploadBtn.addEventListener('click', async () => {
     }
 
     if (!rows.length) {
-      showError('CSV থেকে কোনো আইডি বা নাম আলাদা করা যায়নি। কলাম ফরম্যাট চেক করুন।');
+      showError('No IDs or names found in the CSV. Please check the column format.');
       return;
     }
 
-    log(`ফিল্টার করার পর প্রস্তুত রেকর্ড: ${rows.length}`);
+    log(`Filtered records: ${rows.length}`);
     progressWrap.style.display = 'block';
 
     // ==================== SMART AUTO-FILL LOGIC ====================
     if (targetDb === 'Chemist_Wise_Unpaid') {
-      log('মাস্টার লিস্ট থেকে কেমিস্টদের তথ্য খোঁজা হচ্ছে...');
+      log('Searching for chemist information in the master list...');
 
       const LOOKUP_BATCH = 20;
       let notFoundCount = 0;
@@ -896,11 +1063,11 @@ uploadBtn.addEventListener('click', async () => {
               row['TR NAME'] = masterData['TR NAME'] || masterData['Tr Name'] || '';
             } else {
               notFoundCount++;
-              log(`সতর্কতা: ID ${code} মাস্টার লিস্টে নেই।`);
+              log(`Warning: ID ${code} not found in the master list.`);
             }
           } catch (e) {
             console.error(`Error fetching ID ${code}:`, e);
-            log(`এরর: ID ${code} খুঁজতে সমস্যা হয়েছে।`);
+            log(`Error: Failed to find ID ${code}.`);
           }
         }));
 
@@ -910,7 +1077,7 @@ uploadBtn.addEventListener('click', async () => {
         progressText.textContent = `মিলানো হচ্ছে: ${doneSoFar} / ${rows.length}`;
       }
 
-      log(`তথ্য মেলানোর কাজ শেষ। মিলেনি: ${notFoundCount} টি।`);
+      log(`Not found: ${notFoundCount} `);
     }
 
     // ==================== টার্গেট রেফারেন্স নির্ধারণ ====================
@@ -935,18 +1102,18 @@ uploadBtn.addEventListener('click', async () => {
     }
 
     // ==================== EXISTENCE CHECK + ROUTE LIST (Route ড্রপডাউনের জন্য) ====================
-    log('আগে থেকে ডাটা আছে কিনা যাচাই করা হচ্ছে...');
+    log('Checking existence...');
     const [existsMap] = await Promise.all([
       (mode === 'firestore')
         ? checkExistenceFirestore(targetCollectionRef, rows, (done, total) => {
             const pct = 40 + Math.round((done / total) * 40);
             barFill.style.width = pct + '%';
-            progressText.textContent = `যাচাই হচ্ছে: ${done} / ${total}`;
+            progressText.textContent = `Checking: ${done} / ${total}`;
           }, isRouteUpdate, isEmployeeList)
         : checkExistenceRTDB(rtdb, rtdbRootPath, rows, (done, total) => {
             const pct = 40 + Math.round((done / total) * 40);
             barFill.style.width = pct + '%';
-            progressText.textContent = `যাচাই হচ্ছে: ${done} / ${total}`;
+            progressText.textContent = `Checking: ${done} / ${total}`;
           }, isRouteUpdate, isEmployeeList),
       // Route Update নিজেই রুট লিস্ট তৈরি করছে, তাই dropdown-এর জন্য আলাদা করে রুট লিস্ট আনার দরকার নাই
       (isRouteUpdate || isEmployeeList) ? Promise.resolve([]) : fetchRouteList().then(list => { routeOptionsList = list; })
@@ -960,7 +1127,7 @@ uploadBtn.addEventListener('click', async () => {
       else newRows.push(row);
     });
 
-    log(`নতুন রেকর্ড: ${newRows.length} টি। আগে থেকে আছে: ${existingRows.length} টি।`);
+    log(`New records: ${newRows.length}। Existing records: ${existingRows.length}।`);
     barFill.style.width = '80%';
 
     pendingState = { targetDb, division, employeeCategory, isRouteUpdate, isEmployeeList, mode, targetCollectionRef, displayPath, rtdb, rtdbRootPath, newRows, existingRows };
@@ -972,30 +1139,30 @@ uploadBtn.addEventListener('click', async () => {
       renderPreviewTable(newRows, isRouteUpdate, isEmployeeList);
       previewWrap.style.display = 'block';
       previewInfoLineEl.innerHTML = (targetDb === 'Chemist_List')
-        ? `নিচের টেবিলে শুধু <strong>নতুন</strong> রেকর্ডগুলো দেখানো হচ্ছে — এগুলো প্রয়োজনে এডিট করে নিন। আগে থেকেই থাকা <span id="existingCount">${existingRows.length}</span> টি রেকর্ড এখানে দেখানো হচ্ছে না এবং Confirm করলেও সেগুলো স্পর্শ করা হবে না — শুধু এই নতুন রেকর্ডগুলোই সেভ হবে।`
-        : `নিচের টেবিলে শুধু <strong>নতুন</strong> রেকর্ডগুলো দেখানো হচ্ছে — এগুলো প্রয়োজনে এডিট করে নিন। আগে থেকেই থাকা <span id="existingCount">${existingRows.length}</span> টি রেকর্ড এখানে দেখানো হচ্ছে না, সেগুলো Confirm করলে ব্যাকগ্রাউন্ডে স্বয়ংক্রিয়ভাবে আপডেট (মার্জ) হয়ে যাবে।`;
-      log('নতুন রেকর্ডগুলো নিচে টেবিলে দেখানো হয়েছে। প্রয়োজনে এডিট করে Confirm করুন।');
+        ? `নিচের টেবিলে শুধু <strong>নতুন</strong> রেকর্ডগুলো দেখানো হচ্ছে — এগুলো প্রয়োজনে এডিট করে নিন। আগে থেকেই থাকা <span id="existingCount">${existingRows.length}</span>  রেকর্ড এখানে দেখানো হচ্ছে না এবং Confirm করলেও সেগুলো স্পর্শ করা হবে না — শুধু এই নতুন রেকর্ডগুলোই সেভ হবে।`
+        : `নিচের টেবিলে শুধু <strong>নতুন</strong> রেকর্ডগুলো দেখানো হচ্ছে — এগুলো প্রয়োজনে এডিট করে নিন। আগে থেকেই থাকা <span id="existingCount">${existingRows.length}</span> রেকর্ড এখানে দেখানো হচ্ছে না, সেগুলো Confirm করলে ব্যাকগ্রাউন্ডে স্বয়ংক্রিয়ভাবে আপডেট (মার্জ) হয়ে যাবে।`;
+      log('Preview table ready. Please review and click "Confirm & Upload" to proceed.');
       barFill.style.width = '80%';
-      progressText.textContent = `Confirm করার অপেক্ষায়...`;
+      progressText.textContent = `Confirming...`;
     } else if (targetDb === 'Chemist_List') {
-      log('কোনো নতুন রেকর্ড নেই — CHEMIST LIST-এ আগের রেকর্ড অপরিবর্তিত থাকবে, কিছুই রি-আপলোড হবে না।');
+      log('No new records — existing records in CHEMIST LIST will remain unchanged, no re-upload will occur.');
       barFill.style.width = '100%';
-      progressText.textContent = `০ / ০`;
+      progressText.textContent = `0 / 0`;
       successBox.style.display = 'block';
-      successBox.textContent = 'কোনো নতুন রেকর্ড পাওয়া যায়নি — CHEMIST LIST-এ আপলোড করার কিছু নেই।';
+      successBox.textContent = 'No new records found — nothing to upload to CHEMIST LIST.';
       pendingState = null;
     } else {
-      log('কোনো নতুন রেকর্ড নেই — শুধু আগের রেকর্ড আপডেট হবে। আপলোড হচ্ছে...');
+      log('No new records — only existing records will be updated. Uploading...');
       await performUpload(existingRows, pendingState);
       pendingState = null;
     }
 
   } catch (err) {
     console.error(err);
-    showError('যাচাই ব্যর্থ হয়েছে: ' + (err && err.message ? err.message : String(err)));
+    showError('Upload failed: ' + (err && err.message ? err.message : String(err)));
   } finally {
     uploadBtn.disabled = false;
-    uploadBtn.textContent = 'যাচাই করুন (Check & Preview)';
+    uploadBtn.textContent = 'Check Now';
   }
 });
 
@@ -1015,7 +1182,7 @@ confirmUploadBtn.addEventListener('click', async () => {
   }
 
   if (emptyRouteIndexes.length > 0) {
-    showError(`${emptyRouteIndexes.length} টি রেকর্ডে Route সিলেক্ট করা হয়নি। আপলোড করার আগে সব রো-এর জন্য Route বেছে নিন (লাল বর্ডার করা সেলগুলো দেখুন)।`);
+    showError(`${emptyRouteIndexes.length} records have no route selected. Please select a route for all records before uploading.`);
 
     const routeFieldEls = previewBody.querySelectorAll(`[data-field="${routeFieldName}"]`);
     routeFieldEls.forEach(el => el.style.border = '');
@@ -1030,7 +1197,7 @@ confirmUploadBtn.addEventListener('click', async () => {
 
   confirmUploadBtn.disabled = true;
   cancelPreviewBtn.disabled = true;
-  confirmUploadBtn.textContent = 'আপলোড হচ্ছে...';
+  confirmUploadBtn.textContent = 'Uploading...';
 
   try {
     const allRows = (pendingState.targetDb === 'Chemist_List')
@@ -1041,18 +1208,18 @@ confirmUploadBtn.addEventListener('click', async () => {
     pendingState = null;
   } catch (err) {
     console.error(err);
-    showError('আপলোড ব্যর্থ হয়েছে: ' + (err && err.message ? err.message : String(err)));
+    showError('Upload failed: ' + (err && err.message ? err.message : String(err)));
   } finally {
     confirmUploadBtn.disabled = false;
     cancelPreviewBtn.disabled = false;
-    confirmUploadBtn.textContent = 'Confirm & আপলোড করুন';
+    confirmUploadBtn.textContent = 'Confirm & Upload';
   }
 });
 
 cancelPreviewBtn.addEventListener('click', () => {
   previewWrap.style.display = 'none';
   pendingState = null;
-  log('আপলোড বাতিল করা হয়েছে।');
+  log('Upload cancelled.');
 });
 
 // ==================== আসল আপলোড (Firestore ব্যাচ বা RTDB update) ====================
@@ -1064,7 +1231,7 @@ async function performUpload(allRows, state) {
 
   if (!allRows.length) {
     successBox.style.display = 'block';
-    successBox.textContent = 'আপলোড করার কোনো রেকর্ড নেই।';
+    successBox.textContent = 'No records to upload.';
     return;
   }
 
@@ -1087,7 +1254,7 @@ async function performUpload(allRows, state) {
     barFill.style.width = '100%';
     progressText.textContent = `${allRows.length} / ${allRows.length}`;
     successBox.style.display = 'block';
-    successBox.textContent = `✅ সফলভাবে RTDB তে সেভ হয়েছে! (মোট ${allRows.length} টি)`;
+    successBox.textContent = `✅ Successfully saved to RTDB! (Total ${allRows.length} records)`;
 
   } else {
     const BATCH_SIZE = 300;
@@ -1109,11 +1276,11 @@ async function performUpload(allRows, state) {
       const pct = Math.round((uploaded / allRows.length) * 100);
       barFill.style.width = pct + '%';
       progressText.textContent = `${uploaded} / ${allRows.length}`;
-      log(`ফায়ারস্টোরে আপলোড হচ্ছে: ${uploaded}/${allRows.length}`);
+      log(`Uploading to Firestore: ${uploaded}/${allRows.length}`);
     }
 
     successBox.style.display = 'block';
-    successBox.textContent = `✅ সফলভাবে '${displayPath}' এ ডাটা আপলোড সম্পন্ন হয়েছে! (মোট ${allRows.length} টি)`;
+    successBox.textContent = `✅ Successfully uploaded data to '${displayPath}'! (Total ${allRows.length} records)`;
   }
 }
 </script>
