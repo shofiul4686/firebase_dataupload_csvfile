@@ -247,6 +247,7 @@
           <option value="" disabled selected>Select Destination</option>
           <option value="Chemist_List">CHEMIST LIST (Firestore)</option>
           <option value="Chemist_Wise_Unpaid">13.F Chemist wise outstanding (Firestore)</option>
+          <option value="DA_Wise_Unpaid">13. A DA wise outstanding (Firestore)</option>
           <option value="RTDB_Route_Update">ROUTE UPDATE (Realtime Database)</option>
           <option value="RTDB_Employee_List">EMPLOYEE LIST UPDATE (Realtime Database)</option>
         </select>
@@ -493,9 +494,10 @@ document.addEventListener('click', (e) => {
 // টেবিলে যেই কলামগুলো দেখাবে/এডিট করা যাবে
 // Route Update-এর জন্য শুধু SL NO আর NAME দেখানো হয় (CSV-তে একটাই কলাম থাকে)
 // Employee List-এর জন্য IPI/Designation/Territory/Area/Zone ভিত্তিক আলাদা কলাম সেট
-function getPreviewFields(isRouteUpdate, isEmployeeList) {
+function getPreviewFields(isRouteUpdate, isEmployeeList, isDaWiseUnpaid) {
   if (isRouteUpdate) return ['SL NO', 'NAME'];
   if (isEmployeeList) return ['IPI NO', 'NAME', 'DESIGNATION', 'JOINING DATE', 'TERRITORY CODE', 'TERRITORY NAME', 'AREA CODE', 'AREA NAME', 'ZONE CODE', 'ZONE NAME'];
+  if (isDaWiseUnpaid) return ['DA ID', 'DA Name', 'Client ID', 'Client Name', 'Route Name', 'Payment Mode', 'Date', 'CATEGORY', 'Invoice No', 'Total Amount', 'Total OS', 'Division'];
   return ['Code', 'Chemist Name', 'NAME OF ROUTE', 'ADRESS', 'TR CODE', 'TR NAME', 'CATEGORY', 'Division'];
 }
 
@@ -582,6 +584,23 @@ const HEADER_HINTS = {
     </table>
     <div class="hint-note">Route, Address, Territory, Category এখানে লাগবে না — এগুলো মাস্টার লিস্ট (CHEMIST LIST) থেকে অটো বসে যাবে, যদি সেই কোড আগে থেকে CHEMIST LIST-এ থাকে।</div>
   `,
+  DA_Wise_Unpaid: `
+    <div class="hint-title">13. A DA wise outstanding — যেসব কলাম দরকার</div>
+    <table class="hint-table">
+      <thead><tr><th>কলাম</th><th>প্রয়োজন</th><th>বিবরণ</th></tr></thead>
+      <tbody>
+        <tr><td><code>DA ID/Name</code></td><td class="req-yes">আবশ্যক</td><td>DA-র কোড ও নাম (একসাথে, যেমন <code>101 | Karim</code> বা <code>101 - Karim</code>)</td></tr>
+        <tr><td><code>Client ID/Name</code></td><td class="req-yes">আবশ্যক</td><td>ক্লায়েন্টের কোড ও নাম (একসাথে)</td></tr>
+        <tr><td><code>Payment Mode</code></td><td class="req-no">ঐচ্ছিক</td><td>পেমেন্টের ধরণ</td></tr>
+        <tr><td><code>Date</code></td><td class="req-no">ঐচ্ছিক</td><td>রেকর্ডের তারিখ (CSV-এর ভেতরের কলাম)</td></tr>
+        <tr><td><code>Category Name</code></td><td class="req-no">ঐচ্ছিক</td><td>ক্যাটাগরি</td></tr>
+        <tr><td><code>Invoice No</code></td><td class="req-yes">আবশ্যক</td><td>ইনভয়েস নম্বর — ইউনিক আইডি তৈরিতে ব্যবহৃত হয়</td></tr>
+        <tr><td><code>Total Amount</code></td><td class="req-no">ঐচ্ছিক</td><td>মোট বিলের পরিমাণ</td></tr>
+        <tr><td><code>Total OS</code></td><td class="req-no">ঐচ্ছিক</td><td>মোট বকেয়া (Outstanding)</td></tr>
+      </tbody>
+    </table>
+    <div class="hint-note">Route Name আলাদা করে দিতে হবে না — Client ID দিয়ে মাস্টার লিস্ট (CHEMIST LIST) থেকে অটো বসে যাবে, যদি সেই কোড আগে থেকে CHEMIST LIST-এ থাকে। প্রয়োজনে প্রিভিউ টেবিলে ড্রপডাউন থেকে বদলেও নিতে পারবেন।<br>উপরে Unpaid Data Date সিলেক্ট করে দিন — এই তারিখ অনুযায়ী ডেটা <code>DA_UNPAID/Division/Year/Month/Date</code> পাথে সেভ হবে।</div>
+  `,
   RTDB_Route_Update: `
     <div class="hint-title">ROUTE UPDATE — যেসব কলাম দরকার</div>
     <table class="hint-table">
@@ -638,7 +657,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 collectionSelect.addEventListener('change', () => {
-  if (collectionSelect.value === 'Chemist_Wise_Unpaid') {
+  if (collectionSelect.value === 'Chemist_Wise_Unpaid' || collectionSelect.value === 'DA_Wise_Unpaid') {
     dateSection.style.display = 'block';
   } else {
     dateSection.style.display = 'none';
@@ -753,22 +772,23 @@ function parseInputDate(dateStr) {
 }
 
 // Chemist ডাটার জন্য Code দিয়ে ইউনিক আইডি হয়; Route Update-এ Route নাম দিয়ে, Employee List-এ IPI NO+NAME (কলাম A+B) দিয়ে আইডি হয়
-function buildDocId(row, isRouteUpdate, isEmployeeList) {
+function buildDocId(row, isRouteUpdate, isEmployeeList, isDaWiseUnpaid) {
   let rawKey;
   if (isRouteUpdate) rawKey = row['NAME'] || '';
   else if (isEmployeeList) rawKey = `${row['IPI NO'] || ''}_${row['NAME'] || ''}`;
+  else if (isDaWiseUnpaid) rawKey = `${row['DA ID'] || ''}_${row['Client ID'] || ''}_${row['Invoice No'] || ''}`;
   else rawKey = row['Code'] || '';
   return String(rawKey).trim().replace(/[\.\$\#\[\]\/]/g, '-');
 }
 
 // ==================== EXISTENCE CHECK (Firestore) ====================
-async function checkExistenceFirestore(targetCollectionRef, rows, onProgress, isRouteUpdate, isEmployeeList) {
+async function checkExistenceFirestore(targetCollectionRef, rows, onProgress, isRouteUpdate, isEmployeeList, isDaWiseUnpaid) {
   const CHECK_BATCH = 20;
   const existsMap = {};
   for (let i = 0; i < rows.length; i += CHECK_BATCH) {
     const chunk = rows.slice(i, i + CHECK_BATCH);
     await Promise.all(chunk.map(async (row) => {
-      const docId = buildDocId(row, isRouteUpdate, isEmployeeList);
+      const docId = buildDocId(row, isRouteUpdate, isEmployeeList, isDaWiseUnpaid);
       try {
         const snap = await targetCollectionRef.doc(docId).get();
         existsMap[docId] = snap.exists;
@@ -806,8 +826,8 @@ async function checkExistenceRTDB(rtdb, rootPath, rows, onProgress, isRouteUpdat
 }
 
 // ==================== PREVIEW TABLE রেন্ডার ====================
-function renderPreviewTable(newRows, isRouteUpdate, isEmployeeList) {
-  const fields = getPreviewFields(isRouteUpdate, isEmployeeList);
+function renderPreviewTable(newRows, isRouteUpdate, isEmployeeList, isDaWiseUnpaid) {
+  const fields = getPreviewFields(isRouteUpdate, isEmployeeList, isDaWiseUnpaid);
 
   previewHeadRow.innerHTML = '';
   fields.forEach(f => {
@@ -822,7 +842,7 @@ function renderPreviewTable(newRows, isRouteUpdate, isEmployeeList) {
     fields.forEach(f => {
       const td = document.createElement('td');
 
-      if (f === 'NAME OF ROUTE' && !isRouteUpdate && !isEmployeeList) {
+      if ((f === 'NAME OF ROUTE' || f === 'Route Name') && !isRouteUpdate && !isEmployeeList) {
         const select = document.createElement('select');
         select.dataset.rowIndex = String(idx);
         select.dataset.field = f;
@@ -884,6 +904,7 @@ uploadBtn.addEventListener('click', async () => {
   const targetDb = collectionSelect.value;
   const isRouteUpdate = (targetDb === 'RTDB_Route_Update');
   const isEmployeeList = (targetDb === 'RTDB_Employee_List');
+  const isDaWiseUnpaid = (targetDb === 'DA_Wise_Unpaid');
   const division = (isRouteUpdate || isEmployeeList) ? '' : document.getElementById('division').value;
   const employeeCategory = isEmployeeList ? employeeCategorySelect.value : '';
   const skipRows = parseInt(document.getElementById('skipRows').value || '0', 10);
@@ -894,7 +915,7 @@ uploadBtn.addEventListener('click', async () => {
   if (!fileInput.files.length) { showError('Please select a CSV file.'); return; }
 
   let yearStr, monthStr, formattedDateStr;
-  if (targetDb === 'Chemist_Wise_Unpaid') {
+  if (targetDb === 'Chemist_Wise_Unpaid' || targetDb === 'DA_Wise_Unpaid') {
     if (!unpaidDateInput.value) { showError('Please select a date.'); return; }
     const dateData = parseInputDate(unpaidDateInput.value);
     yearStr = dateData.year;
@@ -977,6 +998,58 @@ uploadBtn.addEventListener('click', async () => {
           });
         }
       }
+    } else if (isDaWiseUnpaid) {
+      // DA wise outstanding: "DA ID/Name" ও "Client ID/Name" — দুটোই কম্বাইন্ড কলাম, | বা - দিয়ে আলাদা করা হয়
+      const splitIdName = (combined) => {
+        combined = (combined || '').toString().trim();
+        let id = '', name = '';
+        if (!combined) return { id, name };
+        if (combined.includes('|')) {
+          const parts = combined.split('|');
+          id = (parts[0] || '').trim();
+          name = (parts[1] || '').trim();
+        } else {
+          const match = combined.match(/^(\d+)(?:\s*[\-\s\_]\s*)(.*)$/) || combined.match(/^(\d+)\s+(.*)$/);
+          if (match) {
+            id = match[1].trim();
+            name = match[2].trim();
+          } else {
+            name = combined;
+          }
+        }
+        return { id, name };
+      };
+
+      for (let i = 0; i < rawRows.length; i++) {
+        const r = rawRows[i];
+        let clean = {};
+        Object.keys(r).forEach(k => {
+          if (k) clean[k.trim()] = (r[k] || '').toString().trim();
+        });
+
+        const daCombined = clean['DA ID/Name'] || clean['DA Id/Name'] || clean['DA ID / Name'] || '';
+        const clientCombined = clean['Client ID/Name'] || clean['Client Id/Name'] || clean['Client ID / Name'] || '';
+
+        const da = splitIdName(daCombined);
+        const client = splitIdName(clientCombined);
+
+        if (da.id && client.id) {
+          rows.push({
+            'DA ID': da.id,
+            'DA Name': da.name,
+            'Client ID': client.id,
+            'Client Name': client.name,
+            'Route Name': '',
+            'Payment Mode': clean['Payment Mode'] || '',
+            'Date': clean['Date'] || '',
+            'CATEGORY': clean['Category Name'] || clean['CATEGORY'] || '',
+            'Invoice No': clean['Invoice No'] || '',
+            'Total Amount': clean['Total Amount'] || '',
+            'Total OS': clean['Total OS'] || '',
+            'Division': division
+          });
+        }
+      }
     } else {
       for (let i = 0; i < rawRows.length; i++) {
         let r = rawRows[i];
@@ -1037,8 +1110,12 @@ uploadBtn.addEventListener('click', async () => {
     progressWrap.style.display = 'block';
 
     // ==================== SMART AUTO-FILL LOGIC ====================
-    if (targetDb === 'Chemist_Wise_Unpaid') {
+    if (targetDb === 'Chemist_Wise_Unpaid' || targetDb === 'DA_Wise_Unpaid') {
       log('Searching for chemist information in the master list...');
+
+      // Chemist_Wise_Unpaid-এ 'Code' দিয়ে লুকআপ হয়, DA_Wise_Unpaid-এ 'Client ID' দিয়ে —
+      // দুটোই CHEMIST LIST মাস্টার ডাটার বিপরীতে মিলানো হয়
+      const lookupCodeField = (targetDb === 'DA_Wise_Unpaid') ? 'Client ID' : 'Code';
 
       const LOOKUP_BATCH = 20;
       let notFoundCount = 0;
@@ -1047,7 +1124,7 @@ uploadBtn.addEventListener('click', async () => {
         const chunk = rows.slice(i, i + LOOKUP_BATCH);
 
         await Promise.all(chunk.map(async (row) => {
-          const code = row['Code']?.trim();
+          const code = row[lookupCodeField]?.trim();
           if (!code) return;
 
           try {
@@ -1058,10 +1135,15 @@ uploadBtn.addEventListener('click', async () => {
 
             if (!querySnap.empty) {
               const masterData = querySnap.docs[0].data();
-              row['NAME OF ROUTE'] = masterData['NAME OF ROUTE'] || masterData['Route'] || '';
-              row['ADRESS'] = masterData['ADRESS'] || masterData['Address'] || '';
-              row['TR CODE'] = masterData['TR CODE'] || masterData['Tr Code'] || '';
-              row['TR NAME'] = masterData['TR NAME'] || masterData['Tr Name'] || '';
+              const routeName = masterData['NAME OF ROUTE'] || masterData['Route'] || '';
+              if (targetDb === 'DA_Wise_Unpaid') {
+                row['Route Name'] = routeName;
+              } else {
+                row['NAME OF ROUTE'] = routeName;
+                row['ADRESS'] = masterData['ADRESS'] || masterData['Address'] || '';
+                row['TR CODE'] = masterData['TR CODE'] || masterData['Tr Code'] || '';
+                row['TR NAME'] = masterData['TR NAME'] || masterData['Tr Name'] || '';
+              }
             } else {
               notFoundCount++;
               log(`Warning: ID ${code} not found in the master list.`);
@@ -1098,6 +1180,8 @@ uploadBtn.addEventListener('click', async () => {
       mode = 'firestore';
       displayPath = (targetDb === 'Chemist_Wise_Unpaid')
         ? `DCC_UNPAID/${division}/${yearStr}/${monthStr}/${formattedDateStr}`
+        : (targetDb === 'DA_Wise_Unpaid')
+        ? `DA_UNPAID/${division}/${yearStr}/${monthStr}/${formattedDateStr}`
         : `Chemist_List/${division}/clients`;
       targetCollectionRef = db.collection(displayPath);
     }
@@ -1110,20 +1194,20 @@ uploadBtn.addEventListener('click', async () => {
             const pct = 40 + Math.round((done / total) * 40);
             barFill.style.width = pct + '%';
             progressText.textContent = `Checking: ${done} / ${total}`;
-          }, isRouteUpdate, isEmployeeList)
+          }, isRouteUpdate, isEmployeeList, isDaWiseUnpaid)
         : checkExistenceRTDB(rtdb, rtdbRootPath, rows, (done, total) => {
             const pct = 40 + Math.round((done / total) * 40);
             barFill.style.width = pct + '%';
             progressText.textContent = `Checking: ${done} / ${total}`;
           }, isRouteUpdate, isEmployeeList),
-      // Route Update নিজেই রুট লিস্ট তৈরি করছে, তাই dropdown-এর জন্য আলাদা করে রুট লিস্ট আনার দরকার নাই
+      // Route Update নিজেই রুট লিস্ট তৈরি করছে, Employee List-এ রুট ড্রপডাউন নেই — শুধু এই দুটোতে রুট লিস্ট আনার দরকার নাই
       (isRouteUpdate || isEmployeeList) ? Promise.resolve([]) : fetchRouteList().then(list => { routeOptionsList = list; })
     ]);
 
     const newRows = [];
     const existingRows = [];
     rows.forEach(row => {
-      const docId = buildDocId(row, isRouteUpdate, isEmployeeList);
+      const docId = buildDocId(row, isRouteUpdate, isEmployeeList, isDaWiseUnpaid);
       if (existsMap[docId]) existingRows.push(row);
       else newRows.push(row);
     });
@@ -1131,13 +1215,13 @@ uploadBtn.addEventListener('click', async () => {
     log(`New records: ${newRows.length}। Existing records: ${existingRows.length}।`);
     barFill.style.width = '80%';
 
-    pendingState = { targetDb, division, employeeCategory, isRouteUpdate, isEmployeeList, mode, targetCollectionRef, displayPath, rtdb, rtdbRootPath, newRows, existingRows };
+    pendingState = { targetDb, division, employeeCategory, isRouteUpdate, isEmployeeList, isDaWiseUnpaid, mode, targetCollectionRef, displayPath, rtdb, rtdbRootPath, newRows, existingRows };
 
     newCountEl.textContent = newRows.length;
     existingCountEl.textContent = existingRows.length;
 
     if (newRows.length > 0) {
-      renderPreviewTable(newRows, isRouteUpdate, isEmployeeList);
+      renderPreviewTable(newRows, isRouteUpdate, isEmployeeList, isDaWiseUnpaid);
       previewWrap.style.display = 'block';
       previewInfoLineEl.innerHTML = (targetDb === 'Chemist_List')
         ? `নিচের টেবিলে শুধু <strong>নতুন</strong> রেকর্ডগুলো দেখানো হচ্ছে — এগুলো প্রয়োজনে এডিট করে নিন। আগে থেকেই থাকা <span id="existingCount">${existingRows.length}</span>  রেকর্ড এখানে দেখানো হচ্ছে না এবং Confirm করলেও সেগুলো স্পর্শ করা হবে না — শুধু এই নতুন রেকর্ডগুলোই সেভ হবে।`
@@ -1176,7 +1260,7 @@ confirmUploadBtn.addEventListener('click', async () => {
 
   const routeFieldName = pendingState.isRouteUpdate ? 'NAME' : 'NAME OF ROUTE';
   const emptyRouteIndexes = [];
-  if (!pendingState.isEmployeeList && !pendingState.isRouteUpdate) {
+  if (!pendingState.isEmployeeList && !pendingState.isRouteUpdate && !pendingState.isDaWiseUnpaid) {
     editedNewRows.forEach((row, idx) => {
       if (!row[routeFieldName] || !row[routeFieldName].trim()) emptyRouteIndexes.push(idx);
     });
@@ -1225,7 +1309,7 @@ cancelPreviewBtn.addEventListener('click', () => {
 
 // ==================== আসল আপলোড (Firestore ব্যাচ বা RTDB update) ====================
 async function performUpload(allRows, state) {
-  const { mode, targetCollectionRef, displayPath, rtdb, rtdbRootPath, targetDb, division, employeeCategory, isRouteUpdate, isEmployeeList } = state;
+  const { mode, targetCollectionRef, displayPath, rtdb, rtdbRootPath, targetDb, division, employeeCategory, isRouteUpdate, isEmployeeList, isDaWiseUnpaid } = state;
 
   progressWrap.style.display = 'block';
   clearMessages();
@@ -1266,7 +1350,7 @@ async function performUpload(allRows, state) {
       const batch = db.batch();
 
       chunk.forEach(row => {
-        const docId = buildDocId(row, false, false);
+        const docId = buildDocId(row, false, false, isDaWiseUnpaid);
         const docRef = targetCollectionRef.doc(docId);
         batch.set(docRef, row, { merge: true });
       });
