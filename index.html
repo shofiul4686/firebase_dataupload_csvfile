@@ -1,560 +1,1273 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="bn">
-<head>
-<meta charset="UTF-8">
-<title>Data Upload</title>
-   <link rel="icon" type="image/png" href="https://images.seeklogo.com/logo-png/53/1/ibn-sina-medical-logo-png_seeklogo-536126.png"/>  <link>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #eef2ee;
-    --bg-dot: #dfe6de;
-    --panel: #ffffff;
-    --ink: #1c2b24;
-    --ink-soft: #3b4a42;
-    --muted: #66766c;
-    --line: #dde3dc;
-    --line-soft: #ecefe9;
-    --accent: #2f6f4f;
-    --accent-dark: #1f4d36;
-    --accent-soft: #e6f0ea;
-    --waypoint: #c9793a;
-    --waypoint-soft: #f7ebdc;
-    --error: #b3392c;
-    --error-soft: #fbeae7;
-    --shadow: 0 1px 2px rgba(28,43,36,0.05), 0 10px 28px -10px rgba(28,43,36,0.12);
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: "Hind Siliguri", "Segoe UI", -apple-system, sans-serif;
-    background-color: var(--bg);
-    background-image: radial-gradient(circle at 1px 1px, var(--bg-dot) 1.4px, transparent 0);
-    background-size: 24px 24px;
-    color: var(--ink);
-    padding: 54px 16px 90px;
-  }
-  .wrap { max-width: 680px; margin: 0 auto; }
+  <head>
+    <meta charset="UTF-8" />
+    <title>Data Upload</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://images.seeklogo.com/logo-png/53/1/ibn-sina-medical-logo-png_seeklogo-536126.png"
+    />
+    <link />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #eef2ee;
+        --bg-dot: #dfe6de;
+        --panel: #ffffff;
+        --ink: #1c2b24;
+        --ink-soft: #3b4a42;
+        --muted: #66766c;
+        --line: #dde3dc;
+        --line-soft: #ecefe9;
+        --accent: #2f6f4f;
+        --accent-dark: #1f4d36;
+        --accent-soft: #e6f0ea;
+        --waypoint: #c9793a;
+        --waypoint-soft: #f7ebdc;
+        --error: #b3392c;
+        --error-soft: #fbeae7;
+        --shadow:
+          0 1px 2px rgba(28, 43, 36, 0.05),
+          0 10px 28px -10px rgba(28, 43, 36, 0.12);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family:
+          "Hind Siliguri",
+          "Segoe UI",
+          -apple-system,
+          sans-serif;
+        background-color: var(--bg);
+        background-image: radial-gradient(
+          circle at 1px 1px,
+          var(--bg-dot) 1.4px,
+          transparent 0
+        );
+        background-size: 24px 24px;
+        color: var(--ink);
+        padding: 54px 16px 90px;
+      }
+      .wrap {
+        max-width: 680px;
+        margin: 0 auto;
+      }
 
-  .brand { display: flex; flex-direction: column; align-items: center; margin-bottom: 28px; }
-  .brand-mark { width: 44px; height: 44px; margin-bottom: 12px; }
-  h1 { font-size: 23px; font-weight: 700; margin: 0 0 8px; text-align: center; letter-spacing: -0.01em; }
-  .sub { color: var(--muted); margin: 0 0 16px; font-size: 14px; text-align: center; }
-  .route-divider { display: block; }
+      .brand {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 28px;
+      }
+      .brand-mark {
+        width: 44px;
+        height: 44px;
+        margin-bottom: 12px;
+      }
+      h1 {
+        font-size: 23px;
+        font-weight: 700;
+        margin: 0 0 8px;
+        text-align: center;
+        letter-spacing: -0.01em;
+      }
+      .sub {
+        color: var(--muted);
+        margin: 0 0 16px;
+        font-size: 14px;
+        text-align: center;
+      }
+      .route-divider {
+        display: block;
+      }
 
-  .card {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 30px 30px 28px;
-    box-shadow: var(--shadow);
-  }
-  label { display: block; font-size: 12.5px; font-weight: 600; margin: 18px 0 7px; color: var(--ink-soft); }
-  label:first-of-type { margin-top: 0; }
-  input[type="text"], input[type="date"], select, input[type="file"] {
-    width: 100%; padding: 11px 13px; border: 1.5px solid var(--line); border-radius: 9px; font-size: 14px; font-family: inherit; background: #fbfbf9; color: var(--ink);
-    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-  }
-  input[type="text"]:hover, input[type="date"]:hover, select:hover { border-color: #c5cfc6; }
-  input[type="text"]:focus, input[type="date"]:focus, select:focus, input[type="file"]:focus {
-    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); background: #fff;
-  }
-  input[type="file"] { padding: 9px 13px; cursor: pointer; }
-  input[type="file"]::file-selector-button {
-    background: var(--accent-soft); color: var(--accent-dark); border: none; border-radius: 6px; padding: 7px 12px; font-weight: 400; font-size: 13px; margin-right: 10px; cursor: pointer; font-family: inherit; transition: background 0.15s ease;
-  }
-  input[type="file"]::file-selector-button:hover { background: #d6e7dc; }
-  select {
-    cursor: pointer; appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2366766c' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px;
-  }
-  button {
-    background: var(--accent); color: white; border: none; padding: 13px 22px; border-radius: 10px; font-size: 14.5px; font-weight: 700; font-family: inherit; cursor: pointer; width: 100%; margin-top: 22px; transition: background 0.15s ease, transform 0.05s ease;
-  }
-  button:hover { background: var(--accent-dark); }
-  button:active { transform: scale(0.99); }
-  button:disabled { background: #b7c2ba; cursor: not-allowed; }
-  button:focus-visible { outline: 2px solid var(--accent-dark); outline-offset: 2px; }
-  .progress-wrap { margin-top: 22px; display: none; }
-  .bar-track { background: var(--line-soft); border-radius: 20px; height: 8px; overflow: hidden; }
-  .bar-fill { background: linear-gradient(90deg, var(--accent), var(--accent-dark)); height: 100%; width: 0%; transition: width 0.25s ease; border-radius: 20px; }
-  .progress-text { font-size: 12.5px; color: var(--muted); margin-top: 8px; text-align: right; font-variant-numeric: tabular-nums; }
-  #log {
-    margin-top: 18px; font-family: "IBM Plex Mono", monospace; font-size: 12px; line-height: 1.6; background: #f6f7f4; border: 1px solid var(--line-soft); border-radius: 9px; padding: 12px 14px; max-height: 140px; overflow-y: auto; white-space: pre-wrap; display: block; color: var(--ink-soft);
-  }
-  .error-box { background: var(--error-soft); border: 1px solid #eab8ae; color: var(--error); padding: 11px 14px; border-radius: 9px; font-size: 13px; margin-top: 18px; display: none; font-weight: 600; }
-  .success-box { background: var(--accent-soft); border: 1px solid #bcdcc7; color: var(--accent-dark); padding: 13px 16px; border-radius: 9px; font-size: 14px; margin-top: 18px; display: none; font-weight: 700; text-align: center; }
-  .row2 { display: flex; gap: 12px; margin-bottom: 4px; }
-  .row2 > div { flex: 1; }
-  .row3 { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 4px; }
-  .row3 > div { flex: 1; min-width: 0; }
-  .row3 > button { flex: 1; margin-top: 0; min-width: 0; }
-  #dateSection { display: none; }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 30px 30px 28px;
+        box-shadow: var(--shadow);
+      }
+      label {
+        display: block;
+        font-size: 12.5px;
+        font-weight: 600;
+        margin: 18px 0 7px;
+        color: var(--ink-soft);
+      }
+      label:first-of-type {
+        margin-top: 0;
+      }
+      input[type="text"],
+      input[type="date"],
+      select,
+      input[type="file"] {
+        width: 100%;
+        padding: 11px 13px;
+        border: 1.5px solid var(--line);
+        border-radius: 9px;
+        font-size: 14px;
+        font-family: inherit;
+        background: #fbfbf9;
+        color: var(--ink);
+        transition:
+          border-color 0.15s ease,
+          box-shadow 0.15s ease,
+          background 0.15s ease;
+      }
+      input[type="text"]:hover,
+      input[type="date"]:hover,
+      select:hover {
+        border-color: #c5cfc6;
+      }
+      input[type="text"]:focus,
+      input[type="date"]:focus,
+      select:focus,
+      input[type="file"]:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-soft);
+        background: #fff;
+      }
+      input[type="file"] {
+        padding: 9px 13px;
+        cursor: pointer;
+      }
+      input[type="file"]::file-selector-button {
+        background: var(--accent-soft);
+        color: var(--accent-dark);
+        border: none;
+        border-radius: 6px;
+        padding: 7px 12px;
+        font-weight: 400;
+        font-size: 13px;
+        margin-right: 10px;
+        cursor: pointer;
+        font-family: inherit;
+        transition: background 0.15s ease;
+      }
+      input[type="file"]::file-selector-button:hover {
+        background: #d6e7dc;
+      }
+      select {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2366766c' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 34px;
+      }
+      button {
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 13px 22px;
+        border-radius: 10px;
+        font-size: 14.5px;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 22px;
+        transition:
+          background 0.15s ease,
+          transform 0.05s ease;
+      }
+      button:hover {
+        background: var(--accent-dark);
+      }
+      button:active {
+        transform: scale(0.99);
+      }
+      button:disabled {
+        background: #b7c2ba;
+        cursor: not-allowed;
+      }
+      button:focus-visible {
+        outline: 2px solid var(--accent-dark);
+        outline-offset: 2px;
+      }
+      .progress-wrap {
+        margin-top: 22px;
+        display: none;
+      }
+      .bar-track {
+        background: var(--line-soft);
+        border-radius: 20px;
+        height: 8px;
+        overflow: hidden;
+      }
+      .bar-fill {
+        background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+        height: 100%;
+        width: 0%;
+        transition: width 0.25s ease;
+        border-radius: 20px;
+      }
+      .progress-text {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-top: 8px;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      #log {
+        margin-top: 18px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+        line-height: 1.6;
+        background: #f6f7f4;
+        border: 1px solid var(--line-soft);
+        border-radius: 9px;
+        padding: 12px 14px;
+        max-height: 140px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        display: block;
+        color: var(--ink-soft);
+      }
+      .error-box {
+        background: var(--error-soft);
+        border: 1px solid #eab8ae;
+        color: var(--error);
+        padding: 11px 14px;
+        border-radius: 9px;
+        font-size: 13px;
+        margin-top: 18px;
+        display: none;
+        font-weight: 600;
+      }
+      .success-box {
+        background: var(--accent-soft);
+        border: 1px solid #bcdcc7;
+        color: var(--accent-dark);
+        padding: 13px 16px;
+        border-radius: 9px;
+        font-size: 14px;
+        margin-top: 18px;
+        display: none;
+        font-weight: 700;
+        text-align: center;
+      }
+      .row2 {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 4px;
+      }
+      .row2 > div {
+        flex: 1;
+      }
+      .row3 {
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+        margin-bottom: 4px;
+      }
+      .row3 > div {
+        flex: 1;
+        min-width: 0;
+      }
+      .row3 > button {
+        flex: 1;
+        margin-top: 0;
+        min-width: 0;
+      }
+      #dateSection {
+        display: none;
+      }
 
-  .date-picker { position: relative; }
-  .date-picker-trigger {
-    width: 100%; margin-top: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px;
-    padding: 11px 13px; border: 1.5px solid var(--line); border-radius: 9px; background: #fbfbf9;
-    font-family: inherit; font-size: 14px; font-weight: 400; color: var(--ink); cursor: pointer;
-    transition: border-color .15s ease, box-shadow .15s ease;
-  }
-  .date-picker-trigger:hover { border-color: #c5cfc6; background: #fbfbf9; }
-  .date-picker-trigger.open { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-  .date-picker-trigger svg { color: var(--muted); flex-shrink: 0; }
-  .date-picker-panel {
-    position: absolute; top: calc(100% + 8px); left: 0; z-index: 30;
-    width: 250px; background: #fff; border: 1px solid var(--line); border-radius: 12px;
-    box-shadow: var(--shadow); padding: 14px; display: none;
-  }
-  .date-picker-panel.open { display: block; }
-  .dp-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-  .dp-header span { font-weight: 700; font-size: 13.5px; color: var(--ink-soft); }
-  .dp-nav {
-    background: none; border: none; width: auto; margin: 0; padding: 3px 9px; font-size: 16px;
-    color: var(--accent-dark); cursor: pointer; border-radius: 6px; line-height: 1.4;
-  }
-  .dp-nav:hover { background: var(--accent-soft); }
-  .dp-weekdays, .dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-  .dp-weekdays span { text-align: center; font-size: 11px; color: var(--muted); font-weight: 600; padding-bottom: 6px; }
-  .dp-grid button {
-    width: 100%; margin: 0; padding: 7px 0; font-size: 12.5px; border-radius: 7px; background: transparent;
-    color: var(--ink); font-weight: 500; border: none; cursor: pointer;
-  }
-  .dp-grid button:hover { background: var(--accent-soft); }
-  .dp-grid button.dp-muted { color: #c3cbc5; }
-  .dp-grid button.dp-today { border: 1.5px solid var(--waypoint); }
-  .dp-grid button.dp-selected { background: var(--accent); color: #fff; font-weight: 700; }
+      .date-picker {
+        position: relative;
+      }
+      .date-picker-trigger {
+        width: 100%;
+        margin-top: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 11px 13px;
+        border: 1.5px solid var(--line);
+        border-radius: 9px;
+        background: #fbfbf9;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--ink);
+        cursor: pointer;
+        transition:
+          border-color 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+      .date-picker-trigger:hover {
+        border-color: #c5cfc6;
+        background: #fbfbf9;
+      }
+      .date-picker-trigger.open {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-soft);
+      }
+      .date-picker-trigger svg {
+        color: var(--muted);
+        flex-shrink: 0;
+      }
+      .date-picker-panel {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        z-index: 30;
+        width: 250px;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        padding: 14px;
+        display: none;
+      }
+      .date-picker-panel.open {
+        display: block;
+      }
+      .dp-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+      .dp-header span {
+        font-weight: 700;
+        font-size: 13.5px;
+        color: var(--ink-soft);
+      }
+      .dp-nav {
+        background: none;
+        border: none;
+        width: auto;
+        margin: 0;
+        padding: 3px 9px;
+        font-size: 16px;
+        color: var(--accent-dark);
+        cursor: pointer;
+        border-radius: 6px;
+        line-height: 1.4;
+      }
+      .dp-nav:hover {
+        background: var(--accent-soft);
+      }
+      .dp-weekdays,
+      .dp-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+      }
+      .dp-weekdays span {
+        text-align: center;
+        font-size: 11px;
+        color: var(--muted);
+        font-weight: 600;
+        padding-bottom: 6px;
+      }
+      .dp-grid button {
+        width: 100%;
+        margin: 0;
+        padding: 7px 0;
+        font-size: 12.5px;
+        border-radius: 7px;
+        background: transparent;
+        color: var(--ink);
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+      }
+      .dp-grid button:hover {
+        background: var(--accent-soft);
+      }
+      .dp-grid button.dp-muted {
+        color: #c3cbc5;
+      }
+      .dp-grid button.dp-today {
+        border: 1.5px solid var(--waypoint);
+      }
+      .dp-grid button.dp-selected {
+        background: var(--accent);
+        color: #fff;
+        font-weight: 700;
+      }
 
-  /* ==== Generic custom dropdown (replaces native <select> for full style control) ==== */
-  .cselect-wrap { position: relative; }
-  .cselect-panel {
-    position: absolute; top: calc(100% + 8px); left: 0; right: 0; z-index: 30;
-    background: #fff; border: 1px solid var(--line); border-radius: 12px;
-    box-shadow: var(--shadow); padding: 6px; display: none; max-height: 240px; overflow-y: auto;
-  }
-  .cselect-panel.open { display: block; }
-  .cselect-option {
-    display: block; width: 100%; text-align: left; padding: 9px 12px; margin-bottom: 2px;
-    border-radius: 7px; font-size: 14px; font-weight: 400; font-family: inherit;
-    background: transparent; color: var(--ink); border: none; cursor: pointer;
-  }
-  .cselect-option:last-child { margin-bottom: 0; }
-  .cselect-option:hover { background: var(--accent-soft); }
-  .cselect-option.cselect-selected { background: var(--accent); color: #fff; font-weight: 700; }
-  .cselect-trigger-label { flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      /* ==== Generic custom dropdown (replaces native <select> for full style control) ==== */
+      .cselect-wrap {
+        position: relative;
+      }
+      .cselect-panel {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        z-index: 30;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        padding: 6px;
+        display: none;
+        max-height: 240px;
+        overflow-y: auto;
+      }
+      .cselect-panel.open {
+        display: block;
+      }
+      .cselect-option {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 9px 12px;
+        margin-bottom: 2px;
+        border-radius: 7px;
+        font-size: 14px;
+        font-weight: 400;
+        font-family: inherit;
+        background: transparent;
+        color: var(--ink);
+        border: none;
+        cursor: pointer;
+      }
+      .cselect-option:last-child {
+        margin-bottom: 0;
+      }
+      .cselect-option:hover {
+        background: var(--accent-soft);
+      }
+      .cselect-option.cselect-selected {
+        background: var(--accent);
+        color: #fff;
+        font-weight: 700;
+      }
+      .cselect-trigger-label {
+        flex: 1;
+        text-align: left;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
 
-  .hint-link-wrap { display: none; margin: 4px 0 18px; }
-  .hint-link {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: var(--waypoint-soft); border: 1px solid #ecd2b3; color: #8a501f;
-    padding: 8px 13px; border-radius: 8px; font-size: 12.5px; font-weight: 700;
-    cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease;
-  }
-  .hint-link:hover { background: #f2dfc4; border-color: #e2bd8c; }
-  .hint-link svg { flex-shrink: 0; }
+      .hint-link-wrap {
+        display: none;
+        margin: 4px 0 18px;
+      }
+      .hint-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--waypoint-soft);
+        border: 1px solid #ecd2b3;
+        color: #8a501f;
+        padding: 8px 13px;
+        border-radius: 8px;
+        font-size: 12.5px;
+        font-weight: 700;
+        cursor: pointer;
+        transition:
+          background 0.15s ease,
+          border-color 0.15s ease;
+      }
+      .hint-link:hover {
+        background: #f2dfc4;
+        border-color: #e2bd8c;
+      }
+      .hint-link svg {
+        flex-shrink: 0;
+      }
 
-  .modal-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(28,43,36,0.42);
-    z-index: 100; align-items: center; justify-content: center; padding: 20px;
-    backdrop-filter: blur(1.5px);
-  }
-  .modal-overlay.open { display: flex; }
-  .modal-box {
-    background: #fff; border-radius: 16px; max-width: 560px; width: 100%;
-    max-height: 82vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px -12px rgba(28,43,36,0.35);
-    animation: modalPop 0.16s ease;
-  }
-  @keyframes modalPop { from { opacity: 0; transform: translateY(6px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-  .modal-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 18px 20px 14px; border-bottom: 1px solid var(--line-soft);
-  }
-  .modal-header span { font-weight: 700; font-size: 15px; color: var(--ink); }
-  .modal-close {
-    width: 30px; height: 30px; margin: 0; padding: 0; border-radius: 8px;
-    background: var(--line-soft); color: var(--ink-soft); font-size: 16px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center; cursor: pointer; border: none;
-  }
-  .modal-close:hover { background: var(--line); }
-  .modal-body { padding: 18px 20px 22px; overflow-y: auto; font-size: 13px; line-height: 1.8; color: var(--ink); }
-  .modal-body .hint-title { font-weight: 700; color: var(--accent-dark); font-size: 14px; margin-bottom: 10px; }
-  .modal-body ul { margin: 0; padding-left: 20px; }
-  .modal-body li { margin-bottom: 7px; }
-  .hint-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 4px; }
-  .hint-table thead th {
-    text-align: left; background: var(--line-soft); color: var(--ink-soft); font-weight: 700;
-    padding: 8px 10px; border-bottom: 1.5px solid var(--line); white-space: nowrap;
-  }
-  .hint-table thead th:first-child { border-top-left-radius: 8px; }
-  .hint-table thead th:last-child { border-top-right-radius: 8px; }
-  .hint-table tbody td { padding: 9px 10px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
-  .hint-table tbody tr:last-child td { border-bottom: none; }
-  .hint-table tbody tr:nth-child(even) { background: #fafbf9; }
-  .hint-table td.req-yes { color: var(--error); font-weight: 700; white-space: nowrap; }
-  .hint-table td.req-no { color: var(--muted); font-weight: 600; white-space: nowrap; }
-  .hint-table td.req-alt { color: var(--waypoint); font-weight: 600; white-space: nowrap; }
-  .modal-body code {
-    background: var(--accent-soft); padding: 2px 7px; border-radius: 5px; font-size: 12.5px;
-    color: var(--accent-dark); border: 1px solid #cfe3d7; font-family: "IBM Plex Mono", monospace;
-  }
-  .modal-body .hint-note {
-    color: var(--muted); margin-top: 14px; font-style: italic; padding-top: 12px;
-    border-top: 1px dashed var(--line); line-height: 1.7;
-  }
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(28, 43, 36, 0.42);
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        backdrop-filter: blur(1.5px);
+      }
+      .modal-overlay.open {
+        display: flex;
+      }
+      .modal-box {
+        background: #fff;
+        border-radius: 16px;
+        max-width: 560px;
+        width: 100%;
+        max-height: 82vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 60px -12px rgba(28, 43, 36, 0.35);
+        animation: modalPop 0.16s ease;
+      }
+      @keyframes modalPop {
+        from {
+          opacity: 0;
+          transform: translateY(6px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 20px 14px;
+        border-bottom: 1px solid var(--line-soft);
+      }
+      .modal-header span {
+        font-weight: 700;
+        font-size: 15px;
+        color: var(--ink);
+      }
+      .modal-close {
+        width: 30px;
+        height: 30px;
+        margin: 0;
+        padding: 0;
+        border-radius: 8px;
+        background: var(--line-soft);
+        color: var(--ink-soft);
+        font-size: 16px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border: none;
+      }
+      .modal-close:hover {
+        background: var(--line);
+      }
+      .modal-body {
+        padding: 18px 20px 22px;
+        overflow-y: auto;
+        font-size: 13px;
+        line-height: 1.8;
+        color: var(--ink);
+      }
+      .modal-body .hint-title {
+        font-weight: 700;
+        color: var(--accent-dark);
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+      .modal-body ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+      .modal-body li {
+        margin-bottom: 7px;
+      }
+      .hint-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12.5px;
+        margin-top: 4px;
+      }
+      .hint-table thead th {
+        text-align: left;
+        background: var(--line-soft);
+        color: var(--ink-soft);
+        font-weight: 700;
+        padding: 8px 10px;
+        border-bottom: 1.5px solid var(--line);
+        white-space: nowrap;
+      }
+      .hint-table thead th:first-child {
+        border-top-left-radius: 8px;
+      }
+      .hint-table thead th:last-child {
+        border-top-right-radius: 8px;
+      }
+      .hint-table tbody td {
+        padding: 9px 10px;
+        border-bottom: 1px solid var(--line-soft);
+        vertical-align: top;
+      }
+      .hint-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+      .hint-table tbody tr:nth-child(even) {
+        background: #fafbf9;
+      }
+      .hint-table td.req-yes {
+        color: var(--error);
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .hint-table td.req-no {
+        color: var(--muted);
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .hint-table td.req-alt {
+        color: var(--waypoint);
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .modal-body code {
+        background: var(--accent-soft);
+        padding: 2px 7px;
+        border-radius: 5px;
+        font-size: 12.5px;
+        color: var(--accent-dark);
+        border: 1px solid #cfe3d7;
+        font-family: "IBM Plex Mono", monospace;
+      }
+      .modal-body .hint-note {
+        color: var(--muted);
+        margin-top: 14px;
+        font-style: italic;
+        padding-top: 12px;
+        border-top: 1px dashed var(--line);
+        line-height: 1.7;
+      }
 
-  .preview-wrap { margin-top: 26px; display: none; }
-  .preview-wrap h3 { font-size: 15.5px; margin: 0 0 5px; font-weight: 700; }
-  .preview-wrap .info-line { font-size: 12.5px; color: var(--muted); margin: 0 0 14px; line-height: 1.6; }
-  .table-scroll { overflow-x: auto; max-height: 420px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; }
-  #previewTable { width: 100%; border-collapse: collapse; font-size: 12px; white-space: nowrap; }
-  #previewTable thead th { background: #f4f5f2; position: sticky; top: 0; text-align: left; padding: 9px 11px; border-bottom: 1px solid var(--line); font-weight: 700; z-index: 1; color: var(--ink-soft); }
-  #previewTable tbody tr:hover td { background: #fafbf9; }
-  #previewTable tbody td { padding: 5px 7px; border-bottom: 1px solid var(--line-soft); }
-  #previewTable input {
-    width: 100%; min-width: 92px; padding: 6px 7px; border: 1px solid var(--line); border-radius: 5px; font-size: 12px; font-family: inherit; background: #fdfcfb;
-  }
-  .preview-actions { display: flex; gap: 12px; margin-top: 18px; }
-  .preview-actions button { margin-top: 0; }
-  #cancelPreviewBtn { background: transparent; color: var(--muted); border: 1.5px solid var(--line); }
-  #cancelPreviewBtn:hover { background: var(--line-soft); color: var(--ink); }
+      .preview-wrap {
+        margin-top: 26px;
+        display: none;
+      }
+      .preview-wrap h3 {
+        font-size: 15.5px;
+        margin: 0 0 5px;
+        font-weight: 700;
+      }
+      .preview-wrap .info-line {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin: 0 0 14px;
+        line-height: 1.6;
+      }
+      .table-scroll {
+        overflow-x: auto;
+        max-height: 420px;
+        overflow-y: auto;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+      }
+      #previewTable {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      #previewTable thead th {
+        background: #f4f5f2;
+        position: sticky;
+        top: 0;
+        text-align: left;
+        padding: 9px 11px;
+        border-bottom: 1px solid var(--line);
+        font-weight: 700;
+        z-index: 1;
+        color: var(--ink-soft);
+      }
+      #previewTable tbody tr:hover td {
+        background: #fafbf9;
+      }
+      #previewTable tbody td {
+        padding: 5px 7px;
+        border-bottom: 1px solid var(--line-soft);
+      }
+      #previewTable input {
+        width: 100%;
+        min-width: 92px;
+        padding: 6px 7px;
+        border: 1px solid var(--line);
+        border-radius: 5px;
+        font-size: 12px;
+        font-family: inherit;
+        background: #fdfcfb;
+      }
+      .preview-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 18px;
+      }
+      .preview-actions button {
+        margin-top: 0;
+      }
+      #cancelPreviewBtn {
+        background: transparent;
+        color: var(--muted);
+        border: 1.5px solid var(--line);
+      }
+      #cancelPreviewBtn:hover {
+        background: var(--line-soft);
+        color: var(--ink);
+      }
 
-  @media (max-width: 480px) {
-    .card { padding: 24px 20px; }
-    .row2 { flex-direction: column; gap: 0; }
-    .row3 { flex-direction: column; gap: 0; align-items: stretch; }
-    .row3 > div, .row3 > button { margin-top: 0; }
-    .row3 > button { margin-top: 16px; }
-    .date-picker-panel { width: 100%; }
-  }
-</style>
-</head>
-<body>
-<div class="wrap">
- 
-
-  <div class="card">
-    <div class="row3">
-      <div>
-        <label> File Choose </label>
-        <input type="file" id="csvFile" accept=".csv">
-      </div>
-      <div>
-        <label> Destination </label>
-        <select id="collectionName">
-          <option value="" disabled selected>Select Destination</option>
-          <option value="Chemist_List">CHEMIST LIST (Firestore)</option>
-          <option value="Chemist_Wise_Unpaid">13.F Chemist wise outstanding (Firestore)</option>
-          <option value="DA_Wise_Unpaid">13. A DA wise outstanding (Firestore)</option>
-          <option value="RTDB_Route_Update">ROUTE UPDATE (Realtime Database)</option>
-          <option value="RTDB_Employee_List">EMPLOYEE LIST UPDATE (Realtime Database)</option>
-        </select>
-      </div>
-      <div id="dateSection">
-        <label>Unpaid Data Date </label>
-        <div class="date-picker" id="datePickerWrap">
-          <button type="button" class="date-picker-trigger" id="datePickerTrigger">
-            <span id="datePickerLabel">Select Date</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          </button>
-          <input type="hidden" id="unpaidDate">
-          <div class="date-picker-panel" id="datePickerPanel">
-            <div class="dp-header">
-              <button type="button" id="dpPrev" class="dp-nav">‹</button>
-              <span id="dpMonthLabel"></span>
-              <button type="button" id="dpNext" class="dp-nav">›</button>
-            </div>
-            <div class="dp-weekdays">
-              <span>র</span><span>সো</span><span>ম</span><span>বু</span><span>বৃ</span><span>শু</span><span>শ</span>
-            </div>
-            <div class="dp-grid" id="dpGrid"></div>
+      @media (max-width: 480px) {
+        .card {
+          padding: 24px 20px;
+        }
+        .row2 {
+          flex-direction: column;
+          gap: 0;
+        }
+        .row3 {
+          flex-direction: column;
+          gap: 0;
+          align-items: stretch;
+        }
+        .row3 > div,
+        .row3 > button {
+          margin-top: 0;
+        }
+        .row3 > button {
+          margin-top: 16px;
+        }
+        .date-picker-panel {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <div class="row3">
+          <div>
+            <label> File Choose </label>
+            <input type="file" id="csvFile" accept=".csv" />
           </div>
+          <div>
+            <label> Destination </label>
+            <select id="collectionName">
+              <option value="" disabled selected>Select Destination</option>
+              <option value="DA_Wise_Unpaid">13. A DA wise outstanding</option>
+              <option value="Chemist_List">CHEMIST LIST</option>
+              <option value="Chemist_Wise_Unpaid">
+                13.F Chemist wise outstanding (Firestore)
+              </option>
+
+              <option value="RTDB_Route_Update">
+                ROUTE UPDATE (Realtime Database)
+              </option>
+              <option value="RTDB_Employee_List">
+                EMPLOYEE LIST UPDATE (Realtime Database)
+              </option>
+            </select>
+          </div>
+          <div id="dateSection">
+            <label>Unpaid Data Date </label>
+            <div class="date-picker" id="datePickerWrap">
+              <button
+                type="button"
+                class="date-picker-trigger"
+                id="datePickerTrigger"
+              >
+                <span id="datePickerLabel">Select Date</span>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="3" y="5" width="18" height="16" rx="2" />
+                  <line x1="16" y1="3" x2="16" y2="7" />
+                  <line x1="8" y1="3" x2="8" y2="7" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              </button>
+              <input type="hidden" id="unpaidDate" />
+              <div class="date-picker-panel" id="datePickerPanel">
+                <div class="dp-header">
+                  <button type="button" id="dpPrev" class="dp-nav">‹</button>
+                  <span id="dpMonthLabel"></span>
+                  <button type="button" id="dpNext" class="dp-nav">›</button>
+                </div>
+                <div class="dp-weekdays">
+                  <span>র</span><span>সো</span><span>ম</span><span>বু</span
+                  ><span>বৃ</span><span>শু</span><span>শ</span>
+                </div>
+                <div class="dp-grid" id="dpGrid"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hint-link-wrap" id="hintLinkWrap">
+          <span class="hint-link" id="hintLinkBtn">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="16" x2="12" y2="11" />
+              <line x1="12" y1="8" x2="12.01" y2="8" />
+            </svg>
+            Check which columns are needed in the
+          </span>
+        </div>
+
+        <div class="row3">
+          <div id="divisionWrapper">
+            <label>Division</label>
+            <select id="division">
+              <option value="" disabled selected>--Select Division--</option>
+              <option value="pharma">PHARMA</option>
+              <option value="inm">INM</option>
+              <option value="isv">ISV</option>
+            </select>
+          </div>
+          <div id="employeeCategoryWrapper" style="display: none">
+            <label>Employee Category</label>
+            <select id="employeeCategory">
+              <option value="" disabled selected>--Select Category--</option>
+              <option value="DR">DR</option>
+              <option value="OFFICE_STAFF">OFFICE STAFF</option>
+              <option value="FIELD_FORCE">FIELD FORCE</option>
+            </select>
+          </div>
+          <div>
+            <label>Junk Header</label>
+            <input type="text" id="skipRows" placeholder="0" />
+          </div>
+          <button id="uploadBtn">Check Now</button>
+        </div>
+
+        <div class="progress-wrap" id="progressWrap">
+          <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
+          <div class="progress-text" id="progressText">০ / ০</div>
+        </div>
+
+        <div class="error-box" id="errorBox"></div>
+        <div class="success-box" id="successBox"></div>
+        <div id="log">System ready. Please select a file.</div>
+      </div>
+
+      <div class="preview-wrap" id="previewWrap">
+        <h3>NEW RECORD: <span id="newCount">0</span></h3>
+        <p class="info-line" id="previewInfoLine">
+          নিচের টেবlে শুধু <strong>নতুন</strong> রেকর্ডগুলো দেখানো হচ্ছে — এগুলো
+          প্রয়োজনে এডিট করে নিন। আগে থেকেই থাকা
+          <span id="existingCount">0</span> রেকরড এখানে দেখানো হচ্ছে না, সেগুলো
+          Confirm করলে ব্যাকগ্রাউন্ডে স্বয়ংক্রিয়ভাবে আপডেট (মার্জ) হয়ে यাবে।
+        </p>
+        <div class="table-scroll">
+          <table id="previewTable">
+            <thead>
+              <tr id="previewHeadRow"></tr>
+            </thead>
+            <tbody id="previewBody"></tbody>
+          </table>
+        </div>
+        <div class="preview-actions">
+          <button id="confirmUploadBtn">Confirm &amp; Upload</button>
+          <button id="cancelPreviewBtn">Cancel</button>
         </div>
       </div>
     </div>
 
-    <div class="hint-link-wrap" id="hintLinkWrap">
-      <span class="hint-link" id="hintLinkBtn">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="11"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        Check which columns are needed in the 
-      </span>
-    </div>
-
-    <div class="row3">
-      <div id="divisionWrapper">
-        <label>Division</label>
-        <select id="division">
-          <option value="" disabled selected>--Select Division--</option>
-          <option value="pharma">PHARMA</option>
-          <option value="inm">INM</option>
-          <option value="isv">ISV</option>
-        </select>
+    <div class="modal-overlay" id="hintModalOverlay">
+      <div class="modal-box">
+        <div class="modal-header">
+          <span>Required Columns</span>
+          <button type="button" class="modal-close" id="hintModalClose">
+            ✕
+          </button>
+        </div>
+        <div class="modal-body" id="hintModalBody"></div>
       </div>
-      <div id="employeeCategoryWrapper" style="display:none;">
-        <label>Employee Category</label>
-        <select id="employeeCategory">
-          <option value="" disabled selected>--Select Category--</option>
-          <option value="DR">DR</option>
-          <option value="OFFICE_STAFF">OFFICE STAFF</option>
-          <option value="FIELD_FORCE">FIELD FORCE</option>
-        </select>
-      </div>
-      <div>
-        <label>Junk Header</label>
-        <input type="text" id="skipRows" placeholder="0">
-      </div>
-      <button id="uploadBtn">Check Now</button>
     </div>
 
-    <div class="progress-wrap" id="progressWrap">
-      <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
-      <div class="progress-text" id="progressText">০ / ০</div>
-    </div>
-    
-    <div class="error-box" id="errorBox"></div>
-    <div class="success-box" id="successBox"></div>
-    <div id="log">System ready. Please select a file.</div>
-  </div>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
-  <div class="preview-wrap" id="previewWrap">
-    <h3>NEW RECORD: <span id="newCount">0</span> </h3>
-    <p class="info-line" id="previewInfoLine">নিচের টেবlে শুধু <strong>নতুন</strong> রেকর্ডগুলো দেখানো হচ্ছে — এগুলো প্রয়োজনে এডিট করে নিন। আগে থেকেই থাকা <span id="existingCount">0</span>  রেকরড এখানে দেখানো হচ্ছে না, সেগুলো Confirm করলে ব্যাকগ্রাউন্ডে স্বয়ংক্রিয়ভাবে আপডেট (মার্জ) হয়ে यাবে।</p>
-    <div class="table-scroll">
-      <table id="previewTable">
-        <thead><tr id="previewHeadRow"></tr></thead>
-        <tbody id="previewBody"></tbody>
-      </table>
-    </div>
-    <div class="preview-actions">
-      <button id="confirmUploadBtn">Confirm &amp; Upload </button>
-      <button id="cancelPreviewBtn">Cancel</button>
-    </div>
-  </div>
-</div>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyD7fAzmJxtpypMEykHPfD2muG8xiRFpXR8",
+        authDomain: "rutewisereport-dinajpur.firebaseapp.com",
+        projectId: "rutewisereport-dinajpur",
+        storageBucket: "rutewisereport-dinajpur.firebasestorage.app",
+        messagingSenderId: "1032741639156",
+        appId: "1:1032741639156:web:db0c3a2a3c8b85bff3dfa1",
+        measurementId: "G-DBB0DXD4TN",
+        databaseURL:
+          "https://rutewisereport-dinajpur-default-rtdb.asia-southeast1.firebasedatabase.app",
+      };
 
-<div class="modal-overlay" id="hintModalOverlay">
-  <div class="modal-box">
-    <div class="modal-header">
-      <span>Required Columns</span>
-      <button type="button" class="modal-close" id="hintModalClose">✕</button>
-    </div>
-    <div class="modal-body" id="hintModalBody"></div>
-  </div>
-</div>
+      const uploadBtn = document.getElementById("uploadBtn");
+      const errorBox = document.getElementById("errorBox");
+      const successBox = document.getElementById("successBox");
+      const progressWrap = document.getElementById("progressWrap");
+      const barFill = document.getElementById("barFill");
+      const progressText = document.getElementById("progressText");
+      const collectionSelect = document.getElementById("collectionName");
+      const dateSection = document.getElementById("dateSection");
+      const divisionWrapper = document.getElementById("divisionWrapper");
+      const employeeCategoryWrapper = document.getElementById(
+        "employeeCategoryWrapper",
+      );
+      const employeeCategorySelect =
+        document.getElementById("employeeCategory");
+      const hintLinkWrap = document.getElementById("hintLinkWrap");
+      const hintLinkBtn = document.getElementById("hintLinkBtn");
+      const hintModalOverlay = document.getElementById("hintModalOverlay");
+      const hintModalBody = document.getElementById("hintModalBody");
+      const hintModalClose = document.getElementById("hintModalClose");
+      const unpaidDateInput = document.getElementById("unpaidDate");
+      const logEl = document.getElementById("log");
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+      const previewWrap = document.getElementById("previewWrap");
+      const previewHeadRow = document.getElementById("previewHeadRow");
+      const previewBody = document.getElementById("previewBody");
+      const newCountEl = document.getElementById("newCount");
+      const existingCountEl = document.getElementById("existingCount");
+      const previewInfoLineEl = document.getElementById("previewInfoLine");
+      const confirmUploadBtn = document.getElementById("confirmUploadBtn");
+      const cancelPreviewBtn = document.getElementById("cancelPreviewBtn");
 
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyD7fAzmJxtpypMEykHPfD2muG8xiRFpXR8",
-  authDomain: "rutewisereport-dinajpur.firebaseapp.com",
-  projectId: "rutewisereport-dinajpur",
-  storageBucket: "rutewisereport-dinajpur.firebasestorage.app",
-  messagingSenderId: "1032741639156",
-  appId: "1:1032741639156:web:db0c3a2a3c8b85bff3dfa1",
-  measurementId: "G-DBB0DXD4TN",
-  databaseURL: "https://rutewisereport-dinajpur-default-rtdb.asia-southeast1.firebasedatabase.app"
-};
+      const today = new Date();
+      unpaidDateInput.value = "";
 
-const uploadBtn = document.getElementById('uploadBtn');
-const errorBox = document.getElementById('errorBox');
-const successBox = document.getElementById('successBox');
-const progressWrap = document.getElementById('progressWrap');
-const barFill = document.getElementById('barFill');
-const progressText = document.getElementById('progressText');
-const collectionSelect = document.getElementById('collectionName');
-const dateSection = document.getElementById('dateSection');
-const divisionWrapper = document.getElementById('divisionWrapper');
-const employeeCategoryWrapper = document.getElementById('employeeCategoryWrapper');
-const employeeCategorySelect = document.getElementById('employeeCategory');
-const hintLinkWrap = document.getElementById('hintLinkWrap');
-const hintLinkBtn = document.getElementById('hintLinkBtn');
-const hintModalOverlay = document.getElementById('hintModalOverlay');
-const hintModalBody = document.getElementById('hintModalBody');
-const hintModalClose = document.getElementById('hintModalClose');
-const unpaidDateInput = document.getElementById('unpaidDate');
-const logEl = document.getElementById('log');
+      // ==================== কাস্টম ডেট পিকার (Unpaid Data Date) ====================
+      const dpTrigger = document.getElementById("datePickerTrigger");
+      const dpLabel = document.getElementById("datePickerLabel");
+      const dpPanel = document.getElementById("datePickerPanel");
+      const dpGrid = document.getElementById("dpGrid");
+      const dpMonthLabel = document.getElementById("dpMonthLabel");
+      const dpPrevBtn = document.getElementById("dpPrev");
+      const dpNextBtn = document.getElementById("dpNext");
 
-const previewWrap = document.getElementById('previewWrap');
-const previewHeadRow = document.getElementById('previewHeadRow');
-const previewBody = document.getElementById('previewBody');
-const newCountEl = document.getElementById('newCount');
-const existingCountEl = document.getElementById('existingCount');
-const previewInfoLineEl = document.getElementById('previewInfoLine');
-const confirmUploadBtn = document.getElementById('confirmUploadBtn');
-const cancelPreviewBtn = document.getElementById('cancelPreviewBtn');
+      const BN_MONTHS = [
+        "জানুয়ারি",
+        "ফেব্রুয়ারি",
+        "মার্চ",
+        "এপ্রিল",
+        "মে",
+        "জুন",
+        "জুলাই",
+        "আগস্ট",
+        "সেপ্টেম্বর",
+        "অক্টোবর",
+        "নভেম্বর",
+        "ডিসেম্বর",
+      ];
 
-const today = new Date();
-unpaidDateInput.value = '';
+      let dpViewYear = today.getFullYear();
+      let dpViewMonth = today.getMonth(); // ০-১১
+      let dpSelected = null; // প্রাথমিক অবস্থায় কোনো তারিখ সিলেক্ট করা থাকবে না
 
-// ==================== কাস্টম ডেট পিকার (Unpaid Data Date) ====================
-const dpTrigger = document.getElementById('datePickerTrigger');
-const dpLabel = document.getElementById('datePickerLabel');
-const dpPanel = document.getElementById('datePickerPanel');
-const dpGrid = document.getElementById('dpGrid');
-const dpMonthLabel = document.getElementById('dpMonthLabel');
-const dpPrevBtn = document.getElementById('dpPrev');
-const dpNextBtn = document.getElementById('dpNext');
+      function pad2(n) {
+        return String(n).padStart(2, "0");
+      }
 
-const BN_MONTHS = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+      function dpFormatLabel(y, m, d) {
+        return `${pad2(d)} ${BN_MONTHS[m]} ${y}`;
+      }
 
-let dpViewYear = today.getFullYear();
-let dpViewMonth = today.getMonth(); // ০-১১
-let dpSelected = null; // প্রাথমিক অবস্থায় কোনো তারিখ সিলেক্ট করা থাকবে না
+      function dpSetHiddenValue(y, m, d) {
+        unpaidDateInput.value = `${y}-${pad2(m + 1)}-${pad2(d)}`;
+      }
 
-function pad2(n) { return String(n).padStart(2, '0'); }
+      function dpRenderGrid() {
+        dpMonthLabel.textContent = `${BN_MONTHS[dpViewMonth]} ${dpViewYear}`;
+        dpGrid.innerHTML = "";
 
-function dpFormatLabel(y, m, d) {
-  return `${pad2(d)} ${BN_MONTHS[m]} ${y}`;
-}
+        const firstDay = new Date(dpViewYear, dpViewMonth, 1).getDay(); // ০ = রবিবার
+        const daysInMonth = new Date(dpViewYear, dpViewMonth + 1, 0).getDate();
+        const prevMonthDays = new Date(dpViewYear, dpViewMonth, 0).getDate();
 
-function dpSetHiddenValue(y, m, d) {
-  unpaidDateInput.value = `${y}-${pad2(m + 1)}-${pad2(d)}`;
-}
+        const cells = [];
+        for (let i = firstDay - 1; i >= 0; i--) {
+          cells.push({ day: prevMonthDays - i, muted: true });
+        }
+        for (let d = 1; d <= daysInMonth; d++) {
+          cells.push({ day: d, muted: false });
+        }
+        const trailing = (7 - (cells.length % 7)) % 7;
+        for (let d = 1; d <= trailing; d++) {
+          cells.push({ day: d, muted: true });
+        }
 
-function dpRenderGrid() {
-  dpMonthLabel.textContent = `${BN_MONTHS[dpViewMonth]} ${dpViewYear}`;
-  dpGrid.innerHTML = '';
+        cells.forEach((cell) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = String(cell.day);
+          if (cell.muted) {
+            btn.classList.add("dp-muted");
+          } else {
+            const isToday =
+              dpViewYear === today.getFullYear() &&
+              dpViewMonth === today.getMonth() &&
+              cell.day === today.getDate();
+            const isSelected =
+              !!dpSelected &&
+              dpViewYear === dpSelected.y &&
+              dpViewMonth === dpSelected.m &&
+              cell.day === dpSelected.d;
+            if (isToday) btn.classList.add("dp-today");
+            if (isSelected) btn.classList.add("dp-selected");
+            btn.addEventListener("click", () => {
+              dpSelected = { y: dpViewYear, m: dpViewMonth, d: cell.day };
+              dpSetHiddenValue(dpViewYear, dpViewMonth, cell.day);
+              dpLabel.textContent = dpFormatLabel(
+                dpViewYear,
+                dpViewMonth,
+                cell.day,
+              );
+              dpClose();
+            });
+          }
+          dpGrid.appendChild(btn);
+        });
+      }
 
-  const firstDay = new Date(dpViewYear, dpViewMonth, 1).getDay(); // ০ = রবিবার
-  const daysInMonth = new Date(dpViewYear, dpViewMonth + 1, 0).getDate();
-  const prevMonthDays = new Date(dpViewYear, dpViewMonth, 0).getDate();
+      function dpOpen() {
+        dpViewYear = dpSelected ? dpSelected.y : today.getFullYear();
+        dpViewMonth = dpSelected ? dpSelected.m : today.getMonth();
+        dpRenderGrid();
+        dpPanel.classList.add("open");
+        dpTrigger.classList.add("open");
+      }
+      function dpClose() {
+        dpPanel.classList.remove("open");
+        dpTrigger.classList.remove("open");
+      }
 
-  const cells = [];
-  for (let i = firstDay - 1; i >= 0; i--) {
-    cells.push({ day: prevMonthDays - i, muted: true });
-  }
-  for (let d = 1; d <= daysInMonth; d++) {
-    cells.push({ day: d, muted: false });
-  }
-  const trailing = (7 - (cells.length % 7)) % 7;
-  for (let d = 1; d <= trailing; d++) {
-    cells.push({ day: d, muted: true });
-  }
-
-  cells.forEach(cell => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.textContent = String(cell.day);
-    if (cell.muted) {
-      btn.classList.add('dp-muted');
-    } else {
-      const isToday = (dpViewYear === today.getFullYear() && dpViewMonth === today.getMonth() && cell.day === today.getDate());
-      const isSelected = !!dpSelected && dpViewYear === dpSelected.y && dpViewMonth === dpSelected.m && cell.day === dpSelected.d;
-      if (isToday) btn.classList.add('dp-today');
-      if (isSelected) btn.classList.add('dp-selected');
-      btn.addEventListener('click', () => {
-        dpSelected = { y: dpViewYear, m: dpViewMonth, d: cell.day };
-        dpSetHiddenValue(dpViewYear, dpViewMonth, cell.day);
-        dpLabel.textContent = dpFormatLabel(dpViewYear, dpViewMonth, cell.day);
-        dpClose();
+      dpTrigger.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (dpPanel.classList.contains("open")) dpClose();
+        else dpOpen();
       });
-    }
-    dpGrid.appendChild(btn);
-  });
-}
-
-function dpOpen() {
-  dpViewYear = dpSelected ? dpSelected.y : today.getFullYear();
-  dpViewMonth = dpSelected ? dpSelected.m : today.getMonth();
-  dpRenderGrid();
-  dpPanel.classList.add('open');
-  dpTrigger.classList.add('open');
-}
-function dpClose() {
-  dpPanel.classList.remove('open');
-  dpTrigger.classList.remove('open');
-}
-
-dpTrigger.addEventListener('click', (e) => {
-  e.stopPropagation();
-  if (dpPanel.classList.contains('open')) dpClose(); else dpOpen();
-});
-dpPrevBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  dpViewMonth--;
-  if (dpViewMonth < 0) { dpViewMonth = 11; dpViewYear--; }
-  dpRenderGrid();
-});
-dpNextBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  dpViewMonth++;
-  if (dpViewMonth > 11) { dpViewMonth = 0; dpViewYear++; }
-  dpRenderGrid();
-});
-document.addEventListener('click', (e) => {
-  if (!document.getElementById('datePickerWrap').contains(e.target)) dpClose();
-});
-
-// টেবিলে যেই কলামগুলো দেখাবে/এডিট করা যাবে
-// Route Update-এর জন্য শুধু SL NO আর NAME দেখানো হয় (CSV-তে একটাই কলাম থাকে)
-// Employee List-এর জন্য IPI/Designation/Territory/Area/Zone ভিত্তিক আলাদা কলাম সেট
-function getPreviewFields(isRouteUpdate, isEmployeeList, isDaWiseUnpaid) {
-  if (isRouteUpdate) return ['SL NO', 'NAME'];
-  if (isEmployeeList) return ['IPI NO', 'NAME', 'DESIGNATION', 'JOINING DATE', 'TERRITORY CODE', 'TERRITORY NAME', 'AREA CODE', 'AREA NAME', 'ZONE CODE', 'ZONE NAME'];
-  if (isDaWiseUnpaid) return ['DA ID', 'DA Name', 'Client ID', 'Client Name', 'Route Name', 'Payment Mode', 'Date', 'CATEGORY', 'Invoice No', 'Total Amount', 'Total OS', 'Division'];
-  return ['Code', 'Chemist Name', 'NAME OF ROUTE', 'ADRESS', 'TR CODE', 'TR NAME', 'CATEGORY', 'Division'];
-}
-
-let app = null;
-let db = null;
-let pendingState = null; // Confirm ধাপের জন্য সব তথ্য এখানে রাখা হয়
-let routeOptionsList = []; // Route_Update থেকে আনা রুটের তালিকা (ড্রপডাউনের জন্য)
-
-// ==================== RTDB "Rute_Name" থেকে রুটের লিস্ট আনা ====================
-// রুট এখন সব ডিভিশনের জন্য একই (division নির্দিষ্ট নয়), তাই একটাই শেয়ার্ড পাথ থেকে আনা হয়
-async function fetchRouteList() {
-  const startedAt = Date.now();
-  log(`[DEBUG] রুট লিস্ট আনা শুরু (Rute_Name)...`);
-  try {
-    const rtdb = firebase.database(app);
-
-    // ৮ সেকেন্ড টাইমআউট — RTDB কানেকশন আটকে থাকলে যাতে পুরো প্রসেস অনন্তকাল না থামে
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('RTDB route fetch timeout (৮ সেকেন্ডেও রেসপন্স পাওয়া যায়নি)')), 8000)
-    );
-    const fetchPromise = rtdb.ref(`Rute_Name`).once('value');
-
-    const snap = await Promise.race([fetchPromise, timeoutPromise]);
-    const routesSet = new Set();
-
-    if (snap.exists()) {
-      snap.forEach(childSnap => {
-        const val = childSnap.val();
-        const routeName = val && (val['NAME'] || val['NAME OF ROUTE'] || val['Route']);
-        if (routeName && routeName.trim()) routesSet.add(routeName.trim());
+      dpPrevBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        dpViewMonth--;
+        if (dpViewMonth < 0) {
+          dpViewMonth = 11;
+          dpViewYear--;
+        }
+        dpRenderGrid();
       });
-    }
+      dpNextBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        dpViewMonth++;
+        if (dpViewMonth > 11) {
+          dpViewMonth = 0;
+          dpViewYear++;
+        }
+        dpRenderGrid();
+      });
+      document.addEventListener("click", (e) => {
+        if (!document.getElementById("datePickerWrap").contains(e.target))
+          dpClose();
+      });
 
-    log(`[DEBUG] রুট লিস্ট আনা শেষ (${Date.now() - startedAt}ms) — ${routesSet.size}  রুট পাওয়া গেছে।`);
-    return Array.from(routesSet).sort((a, b) => a.localeCompare(b));
-  } catch (e) {
-    console.error('রুট লিস্ট আনতে সমস্যা:', e);
-    log(`[DEBUG] রুট লিস্ট আনতে ব্যর্থ (${Date.now() - startedAt}ms): ${e.message}। এটা ছাড়াই এগোনো হচ্ছে (Route ড্রপডাউন খালি থাকবে)।`);
-    return []; // ব্যর্থ হলেও খালি লিস্ট রিটার্ন করে যাতে বাকি প্রসেস আটকে না যায়
-  }
-}
+      // টেবিলে যেই কলামগুলো দেখাবে/এডিট করা যাবে
+      // Route Update-এর জন্য শুধু SL NO আর NAME দেখানো হয় (CSV-তে একটাই কলাম থাকে)
+      // Employee List-এর জন্য IPI/Designation/Territory/Area/Zone ভিত্তিক আলাদা কলাম সেট
+      function getPreviewFields(isRouteUpdate, isEmployeeList, isDaWiseUnpaid) {
+        if (isRouteUpdate) return ["SL NO", "NAME"];
+        if (isEmployeeList)
+          return [
+            "IPI NO",
+            "NAME",
+            "DESIGNATION",
+            "JOINING DATE",
+            "TERRITORY CODE",
+            "TERRITORY NAME",
+            "AREA CODE",
+            "AREA NAME",
+            "ZONE CODE",
+            "ZONE NAME",
+          ];
+        if (isDaWiseUnpaid)
+          return [
+            "DA ID/Name",
+            "Rep ID/Name",
+            "Client ID/Name",
+            "Route Name",
+            "Payment Mode",
+            "Date",
+            "Category Name",
+            "Allocation ID",
+            "Invoice No",
+            "Total Amount",
+            "Total OS",
+            "Division",
+          ];
+        return [
+          "Code",
+          "Chemist Name",
+          "NAME OF ROUTE",
+          "ADRESS",
+          "TR CODE",
+          "TR NAME",
+          "CATEGORY",
+          "Division",
+        ];
+      }
 
-function updateDivisionVisibility() {
-  const val = collectionSelect.value;
-  // ROUTE UPDATE ও EMPLOYEE LIST-এ Division দরকার নাই
-  if (val === 'RTDB_Route_Update' || val === 'RTDB_Employee_List') {
-    divisionWrapper.style.display = 'none';
-  } else {
-    divisionWrapper.style.display = 'block';
-  }
-  // EMPLOYEE LIST-এর জন্য আলাদা ক্যাটেগরি (DR/OFFICE STAFF/FIELD FORCE) দেখাতে হবে
-  employeeCategoryWrapper.style.display = (val === 'RTDB_Employee_List') ? 'block' : 'none';
-}
+      function findFirstValue(clean, aliases) {
+        for (const alias of aliases) {
+          const value = clean[alias];
+          if (value !== undefined && value !== "") return value;
+        }
+        return "";
+      }
 
-// প্রতিটা Database Destination-এর জন্য CSV-তে কোন কোন হেডার লাগবে সেটার নমুনা
-const HEADER_HINTS = {
-  Chemist_List: `
+      function splitCombinedColumn(combined) {
+        combined = (combined || "").toString().trim();
+        let id = "";
+        let name = "";
+        if (!combined) return { id, name };
+        if (combined.includes("|")) {
+          const parts = combined.split("|");
+          id = (parts[0] || "").trim();
+          name = (parts[1] || "").trim();
+        } else {
+          const match =
+            combined.match(/^([0-9]+)(?:\s*[\-\s\_]\s*)(.*)$/) ||
+            combined.match(/^([0-9]+)\s+(.*)$/);
+          if (match) {
+            id = match[1].trim();
+            name = match[2].trim();
+          } else {
+            name = combined;
+          }
+        }
+        return { id, name };
+      }
+
+      let app = null;
+      let db = null;
+      let pendingState = null; // Confirm ধাপের জন্য সব তথ্য এখানে রাখা হয়
+      let routeOptionsList = []; // Route_Update থেকে আনা রুটের তালিকা (ড্রপডাউনের জন্য)
+
+      function collectRouteNames(value, names = []) {
+        if (value === null || value === undefined) return names;
+        if (typeof value === "string") {
+          const trimmed = value.trim();
+          if (trimmed) names.push(trimmed);
+          return names;
+        }
+        if (Array.isArray(value)) {
+          value.forEach((item) => collectRouteNames(item, names));
+          return names;
+        }
+        if (typeof value === "object") {
+          const directKeys = [
+            "NAME",
+            "NAME OF ROUTE",
+            "Route",
+            "route",
+            "routeName",
+            "name",
+            "ROUTE",
+          ];
+          directKeys.forEach((key) => {
+            if (value[key] !== undefined && value[key] !== null) {
+              collectRouteNames(value[key], names);
+            }
+          });
+
+          if (value.value !== undefined && value.value !== null) {
+            collectRouteNames(value.value, names);
+          }
+
+          if (value.key && typeof value.key === "string") {
+            const trimmedKey = value.key.trim();
+            if (trimmedKey) names.push(trimmedKey);
+          }
+        }
+        return names;
+      }
+
+      // ==================== RTDB "Rute_Name" থেকে রুটের লিস্ট আনা ====================
+      // রুট এখন সব ডিভিশনের জন্য একই (division নির্দিষ্ট নয়), তাই একটাই শেয়ার্ড পাথ থেকে আনা হয়
+      async function fetchRouteList() {
+        const startedAt = Date.now();
+        log(`[DEBUG] রুট লিস্ট আনা শুরু (Rute_Name)...`);
+        try {
+          const rtdb = firebase.database(app);
+
+          // ৮ সেকেন্ড টাইমআউট — RTDB কানেকশন আটকে থাকলে যাতে পুরো প্রসেস অনন্তকাল না থামে
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(
+              () =>
+                reject(
+                  new Error(
+                    "RTDB route fetch timeout (৮ সেকেন্ডেও রেসপন্স পাওয়া যায়নি)",
+                  ),
+                ),
+              8000,
+            ),
+          );
+          const fetchPromise = rtdb.ref(`Rute_Name`).once("value");
+
+          const snap = await Promise.race([fetchPromise, timeoutPromise]);
+          const routesSet = new Set();
+
+          if (snap.exists()) {
+            snap.forEach((childSnap) => {
+              const val = childSnap.val();
+              const candidates = collectRouteNames(val);
+              candidates.forEach((name) => routesSet.add(name));
+
+              const childKey = childSnap.key;
+              if (childKey && childKey.trim()) {
+                routesSet.add(childKey.trim());
+              }
+            });
+          }
+
+          log(
+            `[DEBUG] রুট লিস্ট আনা শেষ (${Date.now() - startedAt}ms) — ${routesSet.size}  রুট পাওয়া গেছে।`,
+          );
+          return Array.from(routesSet).sort((a, b) => a.localeCompare(b));
+        } catch (e) {
+          console.error("রুট লিস্ট আনতে সমস্যা:", e);
+          log(
+            `[DEBUG] রুট লিস্ট আনতে ব্যর্থ (${Date.now() - startedAt}ms): ${e.message}। এটা ছাড়াই এগোনো হচ্ছে (Route ড্রপডাউন খালি থাকবে)।`,
+          );
+          return []; // ব্যর্থ হলেও খালি লিস্ট রিটার্ন করে যাতে বাকি প্রসেস আটকে না যায়
+        }
+      }
+
+      function updateDivisionVisibility() {
+        const val = collectionSelect.value;
+        // ROUTE UPDATE ও EMPLOYEE LIST-এ Division দরকার নাই
+        if (val === "RTDB_Route_Update" || val === "RTDB_Employee_List") {
+          divisionWrapper.style.display = "none";
+        } else {
+          divisionWrapper.style.display = "block";
+        }
+        // EMPLOYEE LIST-এর জন্য আলাদা ক্যাটেগরি (DR/OFFICE STAFF/FIELD FORCE) দেখাতে হবে
+        employeeCategoryWrapper.style.display =
+          val === "RTDB_Employee_List" ? "block" : "none";
+      }
+
+      // প্রতিটা Database Destination-এর জন্য CSV-তে কোন কোন হেডার লাগবে সেটার নমুনা
+      const HEADER_HINTS = {
+        Chemist_List: `
     <div class="hint-title">CHEMIST LIST — যেসব কলাম দরকার</div>
     <table class="hint-table">
       <thead><tr><th>কলাম</th><th>প্রয়োজন</th><th>বিবরণ</th></tr></thead>
@@ -571,7 +1284,7 @@ const HEADER_HINTS = {
     </table>
     <div class="hint-note">নমুনা: Code, Name, Route, Address, Territory ID, Territory Name, Category Name</div>
   `,
-  Chemist_Wise_Unpaid: `
+        Chemist_Wise_Unpaid: `
     <div class="hint-title">13. F Chemist wise outstanding — যেসব কলাম দরকার</div>
     <table class="hint-table">
       <thead><tr><th>কলাম</th><th>প্রয়োজন</th><th>বিবরণ</th></tr></thead>
@@ -584,16 +1297,18 @@ const HEADER_HINTS = {
     </table>
     <div class="hint-note">Route, Address, Territory, Category এখানে লাগবে না — এগুলো মাস্টার লিস্ট (CHEMIST LIST) থেকে অটো বসে যাবে, যদি সেই কোড আগে থেকে CHEMIST LIST-এ থাকে।</div>
   `,
-  DA_Wise_Unpaid: `
+        DA_Wise_Unpaid: `
     <div class="hint-title">13. A DA wise outstanding — যেসব কলাম দরকার</div>
     <table class="hint-table">
       <thead><tr><th>কলাম</th><th>প্রয়োজন</th><th>বিবরণ</th></tr></thead>
       <tbody>
         <tr><td><code>DA ID/Name</code></td><td class="req-yes">আবশ্যক</td><td>DA-র কোড ও নাম (একসাথে, যেমন <code>101 | Karim</code> বা <code>101 - Karim</code>)</td></tr>
+        <tr><td><code>Rep ID/Name</code></td><td class="req-no">ঐচ্ছিক</td><td>Representative-এর কোড ও নাম</td></tr>
         <tr><td><code>Client ID/Name</code></td><td class="req-yes">আবশ্যক</td><td>ক্লায়েন্টের কোড ও নাম (একসাথে)</td></tr>
         <tr><td><code>Payment Mode</code></td><td class="req-no">ঐচ্ছিক</td><td>পেমেন্টের ধরণ</td></tr>
         <tr><td><code>Date</code></td><td class="req-no">ঐচ্ছিক</td><td>রেকর্ডের তারিখ (CSV-এর ভেতরের কলাম)</td></tr>
         <tr><td><code>Category Name</code></td><td class="req-no">ঐচ্ছিক</td><td>ক্যাটাগরি</td></tr>
+        <tr><td><code>Allocation ID</code></td><td class="req-no">ঐচ্ছিক</td><td>অ্যালোকেশন আইডি</td></tr>
         <tr><td><code>Invoice No</code></td><td class="req-yes">আবশ্যক</td><td>ইনভয়েস নম্বর — ইউনিক আইডি তৈরিতে ব্যবহৃত হয়</td></tr>
         <tr><td><code>Total Amount</code></td><td class="req-no">ঐচ্ছিক</td><td>মোট বিলের পরিমাণ</td></tr>
         <tr><td><code>Total OS</code></td><td class="req-no">ঐচ্ছিক</td><td>মোট বকেয়া (Outstanding)</td></tr>
@@ -601,7 +1316,7 @@ const HEADER_HINTS = {
     </table>
     <div class="hint-note">Route Name আলাদা করে দিতে হবে না — Client ID দিয়ে মাস্টার লিস্ট (CHEMIST LIST) থেকে অটো বসে যাবে, যদি সেই কোড আগে থেকে CHEMIST LIST-এ থাকে। প্রয়োজনে প্রিভিউ টেবিলে ড্রপডাউন থেকে বদলেও নিতে পারবেন।<br>উপরে Unpaid Data Date সিলেক্ট করে দিন — এই তারিখ অনুযায়ী ডেটা <code>DA_UNPAID/Division/Year/Month/Date</code> পাথে সেভ হবে।</div>
   `,
-  RTDB_Route_Update: `
+        RTDB_Route_Update: `
     <div class="hint-title">ROUTE UPDATE — যেসব কলাম দরকার</div>
     <table class="hint-table">
       <thead><tr><th>কলাম</th><th>প্রয়োজন</th><th>বিবরণ</th></tr></thead>
@@ -611,7 +1326,7 @@ const HEADER_HINTS = {
     </table>
     <div class="hint-note">SL NO স্বয়ংক্রিয়ভাবে যোগ হয়ে যাবে, আলাদা করে দিতে হবে না। Division-ও লাগবে না।</div>
   `,
-  RTDB_Employee_List: `
+        RTDB_Employee_List: `
     <div class="hint-title">EMPLOYEE LIST UPDATE — যেসব কলাম দরকার</div>
     <table class="hint-table">
       <thead><tr><th>কলাম</th><th>প্রয়োজন</th><th>বিবরণ</th></tr></thead>
@@ -629,745 +1344,1055 @@ const HEADER_HINTS = {
       </tbody>
     </table>
     <div class="hint-note">উপরে Employee Category (DR / OFFICE STAFF / FIELD FORCE) সিলেক্ট করে দিন — একই ব্যাচের সবাইকে একই ক্যাটেগরিতে সেভ করা হবে। CSV হেডারের বানানে সামান্য পার্থক্য (যেমন TRRITORY CO, TRITORY NAME) থাকলেও অটো মিলিয়ে নেওয়া হবে।</div>
-  `
-};
-
-function updateHeaderHint() {
-  const hint = HEADER_HINTS[collectionSelect.value] || '';
-  hintModalBody.innerHTML = hint;
-  hintLinkWrap.style.display = hint ? 'block' : 'none';
-  if (!hint) hintModalOverlay.classList.remove('open');
-}
-
-function openHintModal() {
-  if (!hintModalBody.innerHTML.trim()) return;
-  hintModalOverlay.classList.add('open');
-}
-function closeHintModal() {
-  hintModalOverlay.classList.remove('open');
-}
-
-hintLinkBtn.addEventListener('click', openHintModal);
-hintModalClose.addEventListener('click', closeHintModal);
-hintModalOverlay.addEventListener('click', (e) => {
-  if (e.target === hintModalOverlay) closeHintModal();
-});
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeHintModal();
-});
-
-collectionSelect.addEventListener('change', () => {
-  if (collectionSelect.value === 'Chemist_Wise_Unpaid' || collectionSelect.value === 'DA_Wise_Unpaid') {
-    dateSection.style.display = 'block';
-  } else {
-    dateSection.style.display = 'none';
-  }
-  updateDivisionVisibility();
-  updateHeaderHint();
-});
-
-updateDivisionVisibility();
-updateHeaderHint();
-
-// ==================== নেটিভ <select> কে কাস্টম ড্রপডাউনে রূপান্তর (সব একই স্টাইলে) ====================
-// Date picker-এর ট্রিগার/প্যানেল স্টাইল পুনর্ব্যবহার করা হয়েছে, যাতে সব ড্রপডাউন একদম একরকম দেখায়
-function enhanceSelect(selectEl) {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'cselect-wrap';
-
-  const trigger = document.createElement('button');
-  trigger.type = 'button';
-  trigger.className = 'date-picker-trigger';
-  trigger.innerHTML = `<span class="cselect-trigger-label"></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-  const labelSpan = trigger.querySelector('.cselect-trigger-label');
-
-  const panel = document.createElement('div');
-  panel.className = 'cselect-panel';
-
-  function renderLabel() {
-    const opt = selectEl.options[selectEl.selectedIndex];
-    labelSpan.textContent = opt ? opt.textContent : '';
-  }
-
-  function renderPanel() {
-    panel.innerHTML = '';
-    Array.from(selectEl.options).forEach(opt => {
-      if (opt.disabled) return; // প্লেসহোল্ডার অপশন লিস্টে দেখানো হয় না
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'cselect-option' + (opt.value === selectEl.value ? ' cselect-selected' : '');
-      btn.textContent = opt.textContent;
-      btn.addEventListener('click', () => {
-        selectEl.value = opt.value;
-        selectEl.dispatchEvent(new Event('change', { bubbles: true }));
-        renderLabel();
-        closePanel();
-      });
-      panel.appendChild(btn);
-    });
-  }
-
-  function openPanel() {
-    document.querySelectorAll('.cselect-panel.open').forEach(p => { if (p !== panel) p.classList.remove('open'); });
-    document.querySelectorAll('.date-picker-trigger.open').forEach(t => { if (t !== trigger) t.classList.remove('open'); });
-    renderPanel();
-    panel.classList.add('open');
-    trigger.classList.add('open');
-  }
-  function closePanel() {
-    panel.classList.remove('open');
-    trigger.classList.remove('open');
-  }
-
-  trigger.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (panel.classList.contains('open')) closePanel(); else openPanel();
-  });
-  document.addEventListener('click', (e) => {
-    if (!wrapper.contains(e.target)) closePanel();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closePanel();
-  });
-
-  wrapper.appendChild(trigger);
-  wrapper.appendChild(panel);
-  selectEl.insertAdjacentElement('afterend', wrapper);
-  selectEl.style.display = 'none';
-
-  renderLabel();
-  selectEl.addEventListener('change', renderLabel);
-}
-
-['collectionName', 'division', 'employeeCategory'].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) enhanceSelect(el);
-});
-
-function showError(msg) {
-  errorBox.style.display = 'block';
-  errorBox.textContent = msg;
-}
-function clearMessages() {
-  errorBox.style.display = 'none';
-  successBox.style.display = 'none';
-  logEl.textContent = '';
-}
-function log(msg) {
-  logEl.textContent += msg + '\n';
-  logEl.scrollTop = logEl.scrollHeight;
-}
-
-function parseInputDate(dateStr) {
-  const parts = dateStr.split('-'); 
-  const year = parts[0];
-  const monthIdx = parseInt(parts[1], 10) - 1;
-  const day = parts[2];
-  
-  const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-  const shortMonth = months[monthIdx];
-  const formattedDate = `${day}.${parts[1]}.${year}`;
-
-  return { year, shortMonth, formattedDate };
-}
-
-// Chemist ডাটার জন্য Code দিয়ে ইউনিক আইডি হয়; Route Update-এ Route নাম দিয়ে, Employee List-এ IPI NO+NAME (কলাম A+B) দিয়ে আইডি হয়
-function buildDocId(row, isRouteUpdate, isEmployeeList, isDaWiseUnpaid) {
-  let rawKey;
-  if (isRouteUpdate) rawKey = row['NAME'] || '';
-  else if (isEmployeeList) rawKey = `${row['IPI NO'] || ''}_${row['NAME'] || ''}`;
-  else if (isDaWiseUnpaid) rawKey = `${row['DA ID'] || ''}_${row['Client ID'] || ''}_${row['Invoice No'] || ''}`;
-  else rawKey = row['Code'] || '';
-  return String(rawKey).trim().replace(/[\.\$\#\[\]\/]/g, '-');
-}
-
-// ==================== EXISTENCE CHECK (Firestore) ====================
-async function checkExistenceFirestore(targetCollectionRef, rows, onProgress, isRouteUpdate, isEmployeeList, isDaWiseUnpaid) {
-  const CHECK_BATCH = 20;
-  const existsMap = {};
-  for (let i = 0; i < rows.length; i += CHECK_BATCH) {
-    const chunk = rows.slice(i, i + CHECK_BATCH);
-    await Promise.all(chunk.map(async (row) => {
-      const docId = buildDocId(row, isRouteUpdate, isEmployeeList, isDaWiseUnpaid);
-      try {
-        const snap = await targetCollectionRef.doc(docId).get();
-        existsMap[docId] = snap.exists;
-      } catch (e) {
-        existsMap[docId] = false;
-      }
-    }));
-    if (onProgress) onProgress(Math.min(i + CHECK_BATCH, rows.length), rows.length);
-  }
-  return existsMap;
-}
-
-// ==================== EXISTENCE CHECK (RTDB) ====================
-async function checkExistenceRTDB(rtdb, rootPath, rows, onProgress, isRouteUpdate, isEmployeeList) {
-  const CHECK_BATCH = 20;
-  const PER_REQUEST_TIMEOUT = 10000; // ১০ সেকেন্ড — কানেকশন সমস্যায় যাতে পুরো প্রসেস আটকে না থাকে
-  const existsMap = {};
-  for (let i = 0; i < rows.length; i += CHECK_BATCH) {
-    const chunk = rows.slice(i, i + CHECK_BATCH);
-    await Promise.all(chunk.map(async (row) => {
-      const docId = buildDocId(row, isRouteUpdate, isEmployeeList);
-      try {
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('timeout')), PER_REQUEST_TIMEOUT)
-        );
-        const snap = await Promise.race([rtdb.ref(`${rootPath}/${docId}`).once('value'), timeoutPromise]);
-        existsMap[docId] = snap.exists();
-      } catch (e) {
-        existsMap[docId] = false;
-      }
-    }));
-    if (onProgress) onProgress(Math.min(i + CHECK_BATCH, rows.length), rows.length);
-  }
-  return existsMap;
-}
-
-// ==================== PREVIEW TABLE রেন্ডার ====================
-function renderPreviewTable(newRows, isRouteUpdate, isEmployeeList, isDaWiseUnpaid) {
-  const fields = getPreviewFields(isRouteUpdate, isEmployeeList, isDaWiseUnpaid);
-
-  previewHeadRow.innerHTML = '';
-  fields.forEach(f => {
-    const th = document.createElement('th');
-    th.textContent = f;
-    previewHeadRow.appendChild(th);
-  });
-
-  previewBody.innerHTML = '';
-  newRows.forEach((row, idx) => {
-    const tr = document.createElement('tr');
-    fields.forEach(f => {
-      const td = document.createElement('td');
-
-      if ((f === 'NAME OF ROUTE' || f === 'Route Name') && !isRouteUpdate && !isEmployeeList) {
-        const select = document.createElement('select');
-        select.dataset.rowIndex = String(idx);
-        select.dataset.field = f;
-
-        const currentVal = (row[f] || '').trim();
-        let options = routeOptionsList.slice();
-
-        const blankOpt = document.createElement('option');
-        blankOpt.value = '';
-        blankOpt.textContent = 'Route Select';
-        select.appendChild(blankOpt);
-
-        if (currentVal && !options.includes(currentVal)) {
-          options.unshift(currentVal);
-        }
-
-        options.forEach(opt => {
-          const o = document.createElement('option');
-          o.value = opt;
-          o.textContent = opt;
-          if (opt === currentVal) o.selected = true;
-          select.appendChild(o);
-        });
-
-        td.appendChild(select);
-      } else {
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = row[f] || '';
-        input.dataset.rowIndex = String(idx);
-        input.dataset.field = f;
-        td.appendChild(input);
-      }
-
-      tr.appendChild(td);
-    });
-    previewBody.appendChild(tr);
-  });
-}
-
-function readEditedNewRows(originalNewRows) {
-  const updated = originalNewRows.map(r => Object.assign({}, r));
-  const inputs = previewBody.querySelectorAll('input, select');
-  inputs.forEach(input => {
-    const idx = parseInt(input.dataset.rowIndex, 10);
-    const field = input.dataset.field;
-    updated[idx][field] = input.value.trim();
-  });
-  return updated;
-}
-
-// ==================== ধাপ ১: CSV পার্স + লুকআপ + Existence Check ====================
-uploadBtn.addEventListener('click', async () => {
-  clearMessages();
-  previewWrap.style.display = 'none';
-  pendingState = null;
-
-  const fileInput = document.getElementById('csvFile');
-  const targetDb = collectionSelect.value;
-  const isRouteUpdate = (targetDb === 'RTDB_Route_Update');
-  const isEmployeeList = (targetDb === 'RTDB_Employee_List');
-  const isDaWiseUnpaid = (targetDb === 'DA_Wise_Unpaid');
-  const division = (isRouteUpdate || isEmployeeList) ? '' : document.getElementById('division').value;
-  const employeeCategory = isEmployeeList ? employeeCategorySelect.value : '';
-  const skipRows = parseInt(document.getElementById('skipRows').value || '0', 10);
-
-  if (!targetDb) { showError('Please select a database destination.'); return; }
-  if (!isRouteUpdate && !isEmployeeList && !division) { showError('Please select a division.'); return; }
-  if (isEmployeeList && !employeeCategory) { showError('Please select an employee category.'); return; }
-  if (!fileInput.files.length) { showError('Please select a CSV file.'); return; }
-
-  let yearStr, monthStr, formattedDateStr;
-  if (targetDb === 'Chemist_Wise_Unpaid' || targetDb === 'DA_Wise_Unpaid') {
-    if (!unpaidDateInput.value) { showError('Please select a date.'); return; }
-    const dateData = parseInputDate(unpaidDateInput.value);
-    yearStr = dateData.year;
-    monthStr = dateData.shortMonth;
-    formattedDateStr = dateData.formattedDate;
-  }
-
-  uploadBtn.disabled = true;
-  uploadBtn.textContent = 'Verifying...';
-  log('Reading file...');
-
-  try {
-    app = (!firebase.apps || !firebase.apps.length) ? firebase.initializeApp(firebaseConfig) : firebase.app();
-    db = firebase.firestore(app);
-
-    const file = fileInput.files[0];
-    const text = await file.text();
-    
-    let cleanText = text;
-    if (skipRows > 0) {
-      const linesArray = text.split(/\r?\n/);
-      cleanText = linesArray.slice(skipRows).join('\n');
-    }
-
-    const parsed = Papa.parse(cleanText, { header: true, skipEmptyLines: true });
-    const rawRows = parsed.data;
-    
-    log(`File contains a total of ${rawRows.length} lines`);
-
-    const rows = [];
-
-    if (isRouteUpdate) {
-      // Route Update: CSV-তে একটাই কলাম (Column A) — শুধু রুটের নাম। SL NO এখানে অটো যোগ হয়।
-      let slNo = 0;
-      for (let i = 0; i < rawRows.length; i++) {
-        const r = rawRows[i];
-        const firstVal = Object.values(r)[0];
-        const routeName = (firstVal || '').toString().trim();
-        if (!routeName) continue;
-        slNo++;
-        rows.push({
-          'SL NO': slNo,
-          'NAME': routeName
-        });
-      }
-    } else if (isEmployeeList) {
-      // Employee List Update: CSV কলাম A ও B (সাধারণত IPI NO ও NAME) দিয়ে key তৈরি হয়,
-      // বাকি ফিল্ডগুলো হেডারের নাম মিলিয়ে (বানানের সামান্য পার্থক্য থাকলেও) বসানো হয়
-      for (let i = 0; i < rawRows.length; i++) {
-        const r = rawRows[i];
-        const values = Object.values(r);
-
-        let clean = {};
-        Object.keys(r).forEach(k => {
-          if (k) clean[k.trim().toUpperCase()] = (r[k] || '').toString().trim();
-        });
-
-        const colA = (values[0] || '').toString().trim(); // IPI NO
-        const colB = (values[1] || '').toString().trim(); // NAME
-
-        const findField = (...aliases) => {
-          for (const alias of aliases) {
-            if (clean[alias] !== undefined && clean[alias] !== '') return clean[alias];
-          }
-          return '';
-        };
-
-        if (colA && colB) {
-          rows.push({
-            'IPI NO': colA,
-            'NAME': colB,
-            'DESIGNATION': findField('DESIGNATION'),
-            'JOINING DATE': findField('JOINING DATE'),
-            'TERRITORY CODE': findField('TERRITORY CODE', 'TRRITORY CO', 'TRITORY CODE', 'TR CODE'),
-            'TERRITORY NAME': findField('TERRITORY NAME', 'TRITORY NAME', 'TR NAME'),
-            'AREA CODE': findField('AREA CODE'),
-            'AREA NAME': findField('AREA  NAME', 'AREA NAME'),
-            'ZONE CODE': findField('ZONE CODE'),
-            'ZONE NAME': findField('ZONE NAME')
-          });
-        }
-      }
-    } else if (isDaWiseUnpaid) {
-      // DA wise outstanding: "DA ID/Name" ও "Client ID/Name" — দুটোই কম্বাইন্ড কলাম, | বা - দিয়ে আলাদা করা হয়
-      const splitIdName = (combined) => {
-        combined = (combined || '').toString().trim();
-        let id = '', name = '';
-        if (!combined) return { id, name };
-        if (combined.includes('|')) {
-          const parts = combined.split('|');
-          id = (parts[0] || '').trim();
-          name = (parts[1] || '').trim();
-        } else {
-          const match = combined.match(/^(\d+)(?:\s*[\-\s\_]\s*)(.*)$/) || combined.match(/^(\d+)\s+(.*)$/);
-          if (match) {
-            id = match[1].trim();
-            name = match[2].trim();
-          } else {
-            name = combined;
-          }
-        }
-        return { id, name };
+  `,
       };
 
-      for (let i = 0; i < rawRows.length; i++) {
-        const r = rawRows[i];
-        let clean = {};
-        Object.keys(r).forEach(k => {
-          if (k) clean[k.trim()] = (r[k] || '').toString().trim();
-        });
-
-        const daCombined = clean['DA ID/Name'] || clean['DA Id/Name'] || clean['DA ID / Name'] || '';
-        const clientCombined = clean['Client ID/Name'] || clean['Client Id/Name'] || clean['Client ID / Name'] || '';
-
-        const da = splitIdName(daCombined);
-        const client = splitIdName(clientCombined);
-
-        if (da.id && client.id) {
-          rows.push({
-            'DA ID': da.id,
-            'DA Name': da.name,
-            'Client ID': client.id,
-            'Client Name': client.name,
-            'Route Name': '',
-            'Payment Mode': clean['Payment Mode'] || '',
-            'Date': clean['Date'] || '',
-            'CATEGORY': clean['Category Name'] || clean['CATEGORY'] || '',
-            'Invoice No': clean['Invoice No'] || '',
-            'Total Amount': clean['Total Amount'] || '',
-            'Total OS': clean['Total OS'] || '',
-            'Division': division
-          });
-        }
-      }
-    } else {
-      for (let i = 0; i < rawRows.length; i++) {
-        let r = rawRows[i];
-        let clean = {};
-
-        Object.keys(r).forEach(k => {
-          if (k) clean[k.trim()] = (r[k] || '').toString().trim();
-        });
-
-        let finalCode = '';
-        let finalName = '';
-
-        if (clean['Client ID'] !== undefined || clean['Client Id'] !== undefined) {
-          finalCode = (clean['Client ID'] || clean['Client Id'] || clean['Code'] || '').trim();
-          finalName = (clean['Name'] || clean['Chemist Name'] || '').trim();
-        } else {
-          let combinedField = clean['Chemist ID/Name'] || clean['Chemist Name/ID'] || clean['Chemist Name'] || Object.values(clean)[0] || '';
-          finalCode = clean['Code'] || '';
-
-          if (combinedField && combinedField.includes('|')) {
-            const parts = combinedField.split('|');
-            finalCode = parts[0].trim();
-            finalName = parts[1].trim();
-          } else if (combinedField) {
-            const match = combinedField.match(/^(\d+)(?:\s*[\-\s\_]\s*)(.*)$/) || combinedField.match(/^(\d+)\s+(.*)$/);
-            if (match) {
-              finalCode = match[1].trim();
-              finalName = match[2].trim();
-            } else {
-              finalName = combinedField;
-            }
-          }
-        }
-
-        if (finalCode && finalName) {
-          rows.push({
-            'Code': finalCode,
-            'Chemist Name': finalName,
-            'Division': division,
-            'NAME OF ROUTE': clean['Name Of Rute'] || clean['Name Of Route'] || clean['NAME OF ROUTE'] || clean['Route'] || '',
-            'ADRESS': clean['Address'] || clean['ADRESS'] || clean['ADDRESS'] || '',
-            'TR CODE': clean['Territory ID'] || clean['TR CODE'] || clean['Tr Code'] || '',
-            'TR NAME': clean['Territory Name'] || clean['TR NAME'] || clean['Tr Name'] || '',
-            'CATEGORY': clean['Category Name'] || clean['CATEGORY'] || '',
-            'Total Amount': clean['Total Amount'] || '',
-            'Total OS': clean['Total OS'] || ''
-          });
-        }
-      }
-    }
-
-    if (!rows.length) {
-      showError('No IDs or names found in the CSV. Please check the column format.');
-      return;
-    }
-
-    log(`Filtered records: ${rows.length}`);
-    progressWrap.style.display = 'block';
-
-    // ==================== SMART AUTO-FILL LOGIC ====================
-    if (targetDb === 'Chemist_Wise_Unpaid' || targetDb === 'DA_Wise_Unpaid') {
-      log('Searching for chemist information in the master list...');
-
-      // Chemist_Wise_Unpaid-এ 'Code' দিয়ে লুকআপ হয়, DA_Wise_Unpaid-এ 'Client ID' দিয়ে —
-      // দুটোই CHEMIST LIST মাস্টার ডাটার বিপরীতে মিলানো হয়
-      const lookupCodeField = (targetDb === 'DA_Wise_Unpaid') ? 'Client ID' : 'Code';
-
-      const LOOKUP_BATCH = 20;
-      let notFoundCount = 0;
-
-      for (let i = 0; i < rows.length; i += LOOKUP_BATCH) {
-        const chunk = rows.slice(i, i + LOOKUP_BATCH);
-
-        await Promise.all(chunk.map(async (row) => {
-          const code = row[lookupCodeField]?.trim();
-          if (!code) return;
-
-          try {
-            const querySnap = await db.collection(`Chemist_List/${division}/clients`)
-              .where('Code', '==', code)
-              .limit(1)
-              .get();
-
-            if (!querySnap.empty) {
-              const masterData = querySnap.docs[0].data();
-              const routeName = masterData['NAME OF ROUTE'] || masterData['Route'] || '';
-              if (targetDb === 'DA_Wise_Unpaid') {
-                row['Route Name'] = routeName;
-              } else {
-                row['NAME OF ROUTE'] = routeName;
-                row['ADRESS'] = masterData['ADRESS'] || masterData['Address'] || '';
-                row['TR CODE'] = masterData['TR CODE'] || masterData['Tr Code'] || '';
-                row['TR NAME'] = masterData['TR NAME'] || masterData['Tr Name'] || '';
-              }
-            } else {
-              notFoundCount++;
-              log(`Warning: ID ${code} not found in the master list.`);
-            }
-          } catch (e) {
-            console.error(`Error fetching ID ${code}:`, e);
-            log(`Error: Failed to find ID ${code}.`);
-          }
-        }));
-
-        const doneSoFar = Math.min(i + LOOKUP_BATCH, rows.length);
-        const lookupPct = Math.round((doneSoFar / rows.length) * 40);
-        barFill.style.width = lookupPct + '%';
-        progressText.textContent = `মিলানো হচ্ছে: ${doneSoFar} / ${rows.length}`;
+      function updateHeaderHint() {
+        const hint = HEADER_HINTS[collectionSelect.value] || "";
+        hintModalBody.innerHTML = hint;
+        hintLinkWrap.style.display = hint ? "block" : "none";
+        if (!hint) hintModalOverlay.classList.remove("open");
       }
 
-      log(`Not found: ${notFoundCount} `);
-    }
-
-    // ==================== টার্গেট রেফারেন্স নির্ধারণ ====================
-    let mode;
-    let targetCollectionRef = null;
-    let displayPath = '';
-    let rtdb = null;
-    let rtdbRootPath = '';
-
-    if (targetDb === 'RTDB_Route_Update' || targetDb === 'RTDB_Employee_List') {
-      mode = 'rtdb';
-      rtdb = firebase.database(app);
-      rtdbRootPath = (targetDb === 'RTDB_Route_Update')
-        ? `Rute_Name`
-        : `Employee_List/${employeeCategory}`;
-    } else {
-      mode = 'firestore';
-      displayPath = (targetDb === 'Chemist_Wise_Unpaid')
-        ? `DCC_UNPAID/${division}/${yearStr}/${monthStr}/${formattedDateStr}`
-        : (targetDb === 'DA_Wise_Unpaid')
-        ? `DA_UNPAID/${division}/${yearStr}/${monthStr}/${formattedDateStr}`
-        : `Chemist_List/${division}/clients`;
-      targetCollectionRef = db.collection(displayPath);
-    }
-
-    // ==================== EXISTENCE CHECK + ROUTE LIST (Route ড্রপডাউনের জন্য) ====================
-    log('Checking existence...');
-    const [existsMap] = await Promise.all([
-      (mode === 'firestore')
-        ? checkExistenceFirestore(targetCollectionRef, rows, (done, total) => {
-            const pct = 40 + Math.round((done / total) * 40);
-            barFill.style.width = pct + '%';
-            progressText.textContent = `Checking: ${done} / ${total}`;
-          }, isRouteUpdate, isEmployeeList, isDaWiseUnpaid)
-        : checkExistenceRTDB(rtdb, rtdbRootPath, rows, (done, total) => {
-            const pct = 40 + Math.round((done / total) * 40);
-            barFill.style.width = pct + '%';
-            progressText.textContent = `Checking: ${done} / ${total}`;
-          }, isRouteUpdate, isEmployeeList),
-      // Route Update নিজেই রুট লিস্ট তৈরি করছে, Employee List-এ রুট ড্রপডাউন নেই — শুধু এই দুটোতে রুট লিস্ট আনার দরকার নাই
-      (isRouteUpdate || isEmployeeList) ? Promise.resolve([]) : fetchRouteList().then(list => { routeOptionsList = list; })
-    ]);
-
-    const newRows = [];
-    const existingRows = [];
-    rows.forEach(row => {
-      const docId = buildDocId(row, isRouteUpdate, isEmployeeList, isDaWiseUnpaid);
-      if (existsMap[docId]) existingRows.push(row);
-      else newRows.push(row);
-    });
-
-    log(`New records: ${newRows.length}। Existing records: ${existingRows.length}।`);
-    barFill.style.width = '80%';
-
-    pendingState = { targetDb, division, employeeCategory, isRouteUpdate, isEmployeeList, isDaWiseUnpaid, mode, targetCollectionRef, displayPath, rtdb, rtdbRootPath, newRows, existingRows };
-
-    newCountEl.textContent = newRows.length;
-    existingCountEl.textContent = existingRows.length;
-
-    if (newRows.length > 0) {
-      renderPreviewTable(newRows, isRouteUpdate, isEmployeeList, isDaWiseUnpaid);
-      previewWrap.style.display = 'block';
-      previewInfoLineEl.innerHTML = (targetDb === 'Chemist_List')
-        ? `নিচের টেবিলে শুধু <strong>নতুন</strong> রেকর্ডগুলো দেখানো হচ্ছে — এগুলো প্রয়োজনে এডিট করে নিন। আগে থেকেই থাকা <span id="existingCount">${existingRows.length}</span>  রেকর্ড এখানে দেখানো হচ্ছে না এবং Confirm করলেও সেগুলো স্পর্শ করা হবে না — শুধু এই নতুন রেকর্ডগুলোই সেভ হবে।`
-        : `নিচের টেবিলে শুধু <strong>নতুন</strong> রেকর্ডগুলো দেখানো হচ্ছে — এগুলো প্রয়োজনে এডিট করে নিন। আগে থেকেই থাকা <span id="existingCount">${existingRows.length}</span> রেকর্ড এখানে দেখানো হচ্ছে না, সেগুলো Confirm করলে ব্যাকগ্রাউন্ডে স্বয়ংক্রিয়ভাবে আপডেট (মার্জ) হয়ে যাবে।`;
-      log('Preview table ready. Please review and click "Confirm & Upload" to proceed.');
-      barFill.style.width = '80%';
-      progressText.textContent = `Confirming...`;
-    } else if (targetDb === 'Chemist_List') {
-      log('No new records — existing records in CHEMIST LIST will remain unchanged, no re-upload will occur.');
-      barFill.style.width = '100%';
-      progressText.textContent = `0 / 0`;
-      successBox.style.display = 'block';
-      successBox.textContent = 'No new records found — nothing to upload to CHEMIST LIST.';
-      pendingState = null;
-    } else {
-      log('No new records — only existing records will be updated. Uploading...');
-      await performUpload(existingRows, pendingState);
-      pendingState = null;
-    }
-
-  } catch (err) {
-    console.error(err);
-    showError('Upload failed: ' + (err && err.message ? err.message : String(err)));
-  } finally {
-    uploadBtn.disabled = false;
-    uploadBtn.textContent = 'Check Now';
-  }
-});
-
-// ==================== ধাপ ২: Confirm করে আসল আপলোড ====================
-confirmUploadBtn.addEventListener('click', async () => {
-  if (!pendingState) return;
-
-  clearMessages();
-  const editedNewRows = readEditedNewRows(pendingState.newRows);
-
-  const routeFieldName = pendingState.isRouteUpdate ? 'NAME' : 'NAME OF ROUTE';
-  const emptyRouteIndexes = [];
-  if (!pendingState.isEmployeeList && !pendingState.isRouteUpdate && !pendingState.isDaWiseUnpaid) {
-    editedNewRows.forEach((row, idx) => {
-      if (!row[routeFieldName] || !row[routeFieldName].trim()) emptyRouteIndexes.push(idx);
-    });
-  }
-
-  if (emptyRouteIndexes.length > 0) {
-    showError(`${emptyRouteIndexes.length} records have no route selected. Please select a route for all records before uploading.`);
-
-    const routeFieldEls = previewBody.querySelectorAll(`[data-field="${routeFieldName}"]`);
-    routeFieldEls.forEach(el => el.style.border = '');
-    routeFieldEls.forEach(el => {
-      const idx = parseInt(el.dataset.rowIndex, 10);
-      if (emptyRouteIndexes.includes(idx)) {
-        el.style.border = '1.5px solid var(--error)';
+      function openHintModal() {
+        if (!hintModalBody.innerHTML.trim()) return;
+        hintModalOverlay.classList.add("open");
       }
-    });
-    return;
-  }
+      function closeHintModal() {
+        hintModalOverlay.classList.remove("open");
+      }
 
-  confirmUploadBtn.disabled = true;
-  cancelPreviewBtn.disabled = true;
-  confirmUploadBtn.textContent = 'Uploading...';
-
-  try {
-    const allRows = (pendingState.targetDb === 'Chemist_List')
-      ? editedNewRows
-      : pendingState.existingRows.concat(editedNewRows);
-    await performUpload(allRows, pendingState);
-    previewWrap.style.display = 'none';
-    pendingState = null;
-  } catch (err) {
-    console.error(err);
-    showError('Upload failed: ' + (err && err.message ? err.message : String(err)));
-  } finally {
-    confirmUploadBtn.disabled = false;
-    cancelPreviewBtn.disabled = false;
-    confirmUploadBtn.textContent = 'Confirm & Upload';
-  }
-});
-
-cancelPreviewBtn.addEventListener('click', () => {
-  previewWrap.style.display = 'none';
-  pendingState = null;
-  log('Upload cancelled.');
-});
-
-// ==================== আসল আপলোড (Firestore ব্যাচ বা RTDB update) ====================
-async function performUpload(allRows, state) {
-  const { mode, targetCollectionRef, displayPath, rtdb, rtdbRootPath, targetDb, division, employeeCategory, isRouteUpdate, isEmployeeList, isDaWiseUnpaid } = state;
-
-  progressWrap.style.display = 'block';
-  clearMessages();
-
-  if (!allRows.length) {
-    successBox.style.display = 'block';
-    successBox.textContent = 'No records to upload.';
-    return;
-  }
-
-  if (mode === 'rtdb') {
-    const updateObject = {};
-    allRows.forEach(row => {
-      const docId = buildDocId(row, isRouteUpdate, isEmployeeList);
-      updateObject[docId] = row;
-    });
-
-    if (targetDb === 'RTDB_Route_Update') {
-      // Rute_Name পাথের নিচেই সরাসরি প্রতিটা রুট এন্ট্রি বসে, তাই এখানে আলাদা মেটাডাটা কী লেখা হয় না
-      await rtdb.ref(rtdbRootPath).update(updateObject);
-    } else {
-      updateObject['category'] = employeeCategory;
-      updateObject['total_records'] = allRows.length;
-      await rtdb.ref(rtdbRootPath).update(updateObject);
-    }
-
-    barFill.style.width = '100%';
-    progressText.textContent = `${allRows.length} / ${allRows.length}`;
-    successBox.style.display = 'block';
-    successBox.textContent = `✅ Successfully saved to RTDB! (Total ${allRows.length} records)`;
-
-  } else {
-    const BATCH_SIZE = 300;
-    let uploaded = 0;
-
-    for (let i = 0; i < allRows.length; i += BATCH_SIZE) {
-      const chunk = allRows.slice(i, i + BATCH_SIZE);
-      const batch = db.batch();
-
-      chunk.forEach(row => {
-        const docId = buildDocId(row, false, false, isDaWiseUnpaid);
-        const docRef = targetCollectionRef.doc(docId);
-        batch.set(docRef, row, { merge: true });
+      hintLinkBtn.addEventListener("click", openHintModal);
+      hintModalClose.addEventListener("click", closeHintModal);
+      hintModalOverlay.addEventListener("click", (e) => {
+        if (e.target === hintModalOverlay) closeHintModal();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeHintModal();
       });
 
-      await batch.commit();
-      uploaded += chunk.length;
+      collectionSelect.addEventListener("change", () => {
+        if (
+          collectionSelect.value === "Chemist_Wise_Unpaid" ||
+          collectionSelect.value === "DA_Wise_Unpaid"
+        ) {
+          dateSection.style.display = "block";
+        } else {
+          dateSection.style.display = "none";
+        }
+        updateDivisionVisibility();
+        updateHeaderHint();
+      });
 
-      const pct = Math.round((uploaded / allRows.length) * 100);
-      barFill.style.width = pct + '%';
-      progressText.textContent = `${uploaded} / ${allRows.length}`;
-      log(`Uploading to Firestore: ${uploaded}/${allRows.length}`);
-    }
+      updateDivisionVisibility();
+      updateHeaderHint();
 
-    successBox.style.display = 'block';
-    successBox.textContent = `✅ Successfully uploaded data to '${displayPath}'! (Total ${allRows.length} records)`;
-  }
-}
-</script>
-</body>
+      // ==================== নেটিভ <select> কে কাস্টম ড্রপডাউনে রূপান্তর (সব একই স্টাইলে) ====================
+      // Date picker-এর ট্রিগার/প্যানেল স্টাইল পুনর্ব্যবহার করা হয়েছে, যাতে সব ড্রপডাউন একদম একরকম দেখায়
+      function enhanceSelect(selectEl) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "cselect-wrap";
+
+        const trigger = document.createElement("button");
+        trigger.type = "button";
+        trigger.className = "date-picker-trigger";
+        trigger.innerHTML = `<span class="cselect-trigger-label"></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+        const labelSpan = trigger.querySelector(".cselect-trigger-label");
+
+        const panel = document.createElement("div");
+        panel.className = "cselect-panel";
+
+        function renderLabel() {
+          const opt = selectEl.options[selectEl.selectedIndex];
+          labelSpan.textContent = opt ? opt.textContent : "";
+        }
+
+        function renderPanel() {
+          panel.innerHTML = "";
+          Array.from(selectEl.options).forEach((opt) => {
+            if (opt.disabled) return; // প্লেসহোল্ডার অপশন লিস্টে দেখানো হয় না
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className =
+              "cselect-option" +
+              (opt.value === selectEl.value ? " cselect-selected" : "");
+            btn.textContent = opt.textContent;
+            btn.addEventListener("click", () => {
+              selectEl.value = opt.value;
+              selectEl.dispatchEvent(new Event("change", { bubbles: true }));
+              renderLabel();
+              closePanel();
+            });
+            panel.appendChild(btn);
+          });
+        }
+
+        function openPanel() {
+          document.querySelectorAll(".cselect-panel.open").forEach((p) => {
+            if (p !== panel) p.classList.remove("open");
+          });
+          document
+            .querySelectorAll(".date-picker-trigger.open")
+            .forEach((t) => {
+              if (t !== trigger) t.classList.remove("open");
+            });
+          renderPanel();
+          panel.classList.add("open");
+          trigger.classList.add("open");
+        }
+        function closePanel() {
+          panel.classList.remove("open");
+          trigger.classList.remove("open");
+        }
+
+        trigger.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (panel.classList.contains("open")) closePanel();
+          else openPanel();
+        });
+        document.addEventListener("click", (e) => {
+          if (!wrapper.contains(e.target)) closePanel();
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") closePanel();
+        });
+
+        wrapper.appendChild(trigger);
+        wrapper.appendChild(panel);
+        selectEl.insertAdjacentElement("afterend", wrapper);
+        selectEl.style.display = "none";
+
+        renderLabel();
+        selectEl.addEventListener("change", renderLabel);
+      }
+
+      ["collectionName", "division", "employeeCategory"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) enhanceSelect(el);
+      });
+
+      function showError(msg) {
+        errorBox.style.display = "block";
+        errorBox.textContent = msg;
+      }
+      function clearMessages() {
+        errorBox.style.display = "none";
+        successBox.style.display = "none";
+        logEl.textContent = "";
+      }
+      function log(msg) {
+        logEl.textContent += msg + "\n";
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      function parseInputDate(dateStr) {
+        const parts = dateStr.split("-");
+        const year = parts[0];
+        const monthIdx = parseInt(parts[1], 10) - 1;
+        const day = parts[2];
+
+        const months = [
+          "JAN",
+          "FEB",
+          "MAR",
+          "APR",
+          "MAY",
+          "JUN",
+          "JUL",
+          "AUG",
+          "SEP",
+          "OCT",
+          "NOV",
+          "DEC",
+        ];
+        const shortMonth = months[monthIdx];
+        const formattedDate = `${day}.${parts[1]}.${year}`;
+
+        return { year, shortMonth, formattedDate };
+      }
+
+      // Chemist ডাটার জন্য Code দিয়ে ইউনিক আইডি হয়; Route Update-এ Route নাম দিয়ে, Employee List-এ IPI NO+NAME (কলাম A+B) দিয়ে আইডি হয়
+      function buildDocId(row, isRouteUpdate, isEmployeeList, isDaWiseUnpaid) {
+        let rawKey;
+        if (isRouteUpdate) rawKey = row["NAME"] || "";
+        else if (isEmployeeList)
+          rawKey = `${row["IPI NO"] || ""}_${row["NAME"] || ""}`;
+        else if (isDaWiseUnpaid)
+          rawKey = `${row["DA ID"] || ""}_${row["Client ID"] || ""}_${row["Invoice No"] || ""}`;
+        else rawKey = row["Code"] || "";
+        return String(rawKey)
+          .trim()
+          .replace(/[\.\$\#\[\]\/]/g, "-");
+      }
+
+      // ==================== EXISTENCE CHECK (Firestore) ====================
+      async function checkExistenceFirestore(
+        targetCollectionRef,
+        rows,
+        onProgress,
+        isRouteUpdate,
+        isEmployeeList,
+        isDaWiseUnpaid,
+      ) {
+        const CHECK_BATCH = 20;
+        const existsMap = {};
+        for (let i = 0; i < rows.length; i += CHECK_BATCH) {
+          const chunk = rows.slice(i, i + CHECK_BATCH);
+          await Promise.all(
+            chunk.map(async (row) => {
+              const docId = buildDocId(
+                row,
+                isRouteUpdate,
+                isEmployeeList,
+                isDaWiseUnpaid,
+              );
+              try {
+                const snap = await targetCollectionRef.doc(docId).get();
+                existsMap[docId] = snap.exists;
+              } catch (e) {
+                existsMap[docId] = false;
+              }
+            }),
+          );
+          if (onProgress)
+            onProgress(Math.min(i + CHECK_BATCH, rows.length), rows.length);
+        }
+        return existsMap;
+      }
+
+      // ==================== EXISTENCE CHECK (RTDB) ====================
+      async function checkExistenceRTDB(
+        rtdb,
+        rootPath,
+        rows,
+        onProgress,
+        isRouteUpdate,
+        isEmployeeList,
+      ) {
+        const CHECK_BATCH = 20;
+        const PER_REQUEST_TIMEOUT = 10000; // ১০ সেকেন্ড — কানেকশন সমস্যায় যাতে পুরো প্রসেস আটকে না থাকে
+        const existsMap = {};
+        for (let i = 0; i < rows.length; i += CHECK_BATCH) {
+          const chunk = rows.slice(i, i + CHECK_BATCH);
+          await Promise.all(
+            chunk.map(async (row) => {
+              const docId = buildDocId(row, isRouteUpdate, isEmployeeList);
+              try {
+                const timeoutPromise = new Promise((_, reject) =>
+                  setTimeout(
+                    () => reject(new Error("timeout")),
+                    PER_REQUEST_TIMEOUT,
+                  ),
+                );
+                const snap = await Promise.race([
+                  rtdb.ref(`${rootPath}/${docId}`).once("value"),
+                  timeoutPromise,
+                ]);
+                existsMap[docId] = snap.exists();
+              } catch (e) {
+                existsMap[docId] = false;
+              }
+            }),
+          );
+          if (onProgress)
+            onProgress(Math.min(i + CHECK_BATCH, rows.length), rows.length);
+        }
+        return existsMap;
+      }
+
+      // ==================== PREVIEW TABLE রেন্ডার ====================
+      function renderPreviewTable(
+        newRows,
+        isRouteUpdate,
+        isEmployeeList,
+        isDaWiseUnpaid,
+      ) {
+        const fields = getPreviewFields(
+          isRouteUpdate,
+          isEmployeeList,
+          isDaWiseUnpaid,
+        );
+
+        previewHeadRow.innerHTML = "";
+        fields.forEach((f) => {
+          const th = document.createElement("th");
+          th.textContent = f;
+          previewHeadRow.appendChild(th);
+        });
+
+        previewBody.innerHTML = "";
+        newRows.forEach((row, idx) => {
+          const tr = document.createElement("tr");
+          fields.forEach((f) => {
+            const td = document.createElement("td");
+
+            if (
+              (f === "NAME OF ROUTE" || f === "Route Name") &&
+              !isRouteUpdate &&
+              !isEmployeeList
+            ) {
+              const select = document.createElement("select");
+              select.dataset.rowIndex = String(idx);
+              select.dataset.field = f;
+
+              const currentVal = (row[f] || "").trim();
+              let options = routeOptionsList.slice();
+
+              const blankOpt = document.createElement("option");
+              blankOpt.value = "";
+              blankOpt.textContent = "Route Select";
+              select.appendChild(blankOpt);
+
+              if (currentVal && !options.includes(currentVal)) {
+                options.unshift(currentVal);
+              }
+
+              options.forEach((opt) => {
+                const o = document.createElement("option");
+                o.value = opt;
+                o.textContent = opt;
+                if (opt === currentVal) o.selected = true;
+                select.appendChild(o);
+              });
+
+              td.appendChild(select);
+            } else {
+              const input = document.createElement("input");
+              input.type = "text";
+              input.value = row[f] || "";
+              input.dataset.rowIndex = String(idx);
+              input.dataset.field = f;
+              td.appendChild(input);
+            }
+
+            tr.appendChild(td);
+          });
+          previewBody.appendChild(tr);
+        });
+      }
+
+      function readEditedNewRows(originalNewRows) {
+        const updated = originalNewRows.map((r) => Object.assign({}, r));
+        const inputs = previewBody.querySelectorAll("input, select");
+        inputs.forEach((input) => {
+          const idx = parseInt(input.dataset.rowIndex, 10);
+          const field = input.dataset.field;
+          updated[idx][field] = input.value.trim();
+        });
+        return updated;
+      }
+
+      // ==================== ধাপ ১: CSV পার্স + লুকআপ + Existence Check ====================
+      uploadBtn.addEventListener("click", async () => {
+        clearMessages();
+        previewWrap.style.display = "none";
+        pendingState = null;
+
+        const fileInput = document.getElementById("csvFile");
+        const targetDb = collectionSelect.value;
+        const isRouteUpdate = targetDb === "RTDB_Route_Update";
+        const isEmployeeList = targetDb === "RTDB_Employee_List";
+        const isDaWiseUnpaid = targetDb === "DA_Wise_Unpaid";
+        const division =
+          isRouteUpdate || isEmployeeList
+            ? ""
+            : document.getElementById("division").value;
+        const employeeCategory = isEmployeeList
+          ? employeeCategorySelect.value
+          : "";
+        const skipRows = parseInt(
+          document.getElementById("skipRows").value || "0",
+          10,
+        );
+
+        if (!targetDb) {
+          showError("Please select a database destination.");
+          return;
+        }
+        if (!isRouteUpdate && !isEmployeeList && !division) {
+          showError("Please select a division.");
+          return;
+        }
+        if (isEmployeeList && !employeeCategory) {
+          showError("Please select an employee category.");
+          return;
+        }
+        if (!fileInput.files.length) {
+          showError("Please select a CSV file.");
+          return;
+        }
+
+        let yearStr, monthStr, formattedDateStr;
+        if (
+          targetDb === "Chemist_Wise_Unpaid" ||
+          targetDb === "DA_Wise_Unpaid"
+        ) {
+          if (!unpaidDateInput.value) {
+            showError("Please select a date.");
+            return;
+          }
+          const dateData = parseInputDate(unpaidDateInput.value);
+          yearStr = dateData.year;
+          monthStr = dateData.shortMonth;
+          formattedDateStr = dateData.formattedDate;
+        }
+
+        uploadBtn.disabled = true;
+        uploadBtn.textContent = "Verifying...";
+        log("Reading file...");
+
+        try {
+          app =
+            !firebase.apps || !firebase.apps.length
+              ? firebase.initializeApp(firebaseConfig)
+              : firebase.app();
+          db = firebase.firestore(app);
+
+          const file = fileInput.files[0];
+          const text = await file.text();
+
+          let cleanText = text;
+          if (skipRows > 0) {
+            const linesArray = text.split(/\r?\n/);
+            cleanText = linesArray.slice(skipRows).join("\n");
+          }
+
+          const parsed = Papa.parse(cleanText, {
+            header: true,
+            skipEmptyLines: true,
+          });
+          const rawRows = parsed.data;
+
+          log(`File contains a total of ${rawRows.length} lines`);
+
+          const rows = [];
+
+          if (isRouteUpdate) {
+            // Route Update: CSV-তে একটাই কলাম (Column A) — শুধু রুটের নাম। SL NO এখানে অটো যোগ হয়।
+            let slNo = 0;
+            for (let i = 0; i < rawRows.length; i++) {
+              const r = rawRows[i];
+              const firstVal = Object.values(r)[0];
+              const routeName = (firstVal || "").toString().trim();
+              if (!routeName) continue;
+              slNo++;
+              rows.push({
+                "SL NO": slNo,
+                NAME: routeName,
+              });
+            }
+          } else if (isEmployeeList) {
+            // Employee List Update: CSV কলাম A ও B (সাধারণত IPI NO ও NAME) দিয়ে key তৈরি হয়,
+            // বাকি ফিল্ডগুলো হেডারের নাম মিলিয়ে (বানানের সামান্য পার্থক্য থাকলেও) বসানো হয়
+            for (let i = 0; i < rawRows.length; i++) {
+              const r = rawRows[i];
+              const values = Object.values(r);
+
+              let clean = {};
+              Object.keys(r).forEach((k) => {
+                if (k)
+                  clean[k.trim().toUpperCase()] = (r[k] || "")
+                    .toString()
+                    .trim();
+              });
+
+              const colA = (values[0] || "").toString().trim(); // IPI NO
+              const colB = (values[1] || "").toString().trim(); // NAME
+
+              const findField = (...aliases) => {
+                for (const alias of aliases) {
+                  if (clean[alias] !== undefined && clean[alias] !== "")
+                    return clean[alias];
+                }
+                return "";
+              };
+
+              if (colA && colB) {
+                rows.push({
+                  "IPI NO": colA,
+                  NAME: colB,
+                  DESIGNATION: findField("DESIGNATION"),
+                  "JOINING DATE": findField("JOINING DATE"),
+                  "TERRITORY CODE": findField(
+                    "TERRITORY CODE",
+                    "TRRITORY CO",
+                    "TRITORY CODE",
+                    "TR CODE",
+                  ),
+                  "TERRITORY NAME": findField(
+                    "TERRITORY NAME",
+                    "TRITORY NAME",
+                    "TR NAME",
+                  ),
+                  "AREA CODE": findField("AREA CODE"),
+                  "AREA NAME": findField("AREA  NAME", "AREA NAME"),
+                  "ZONE CODE": findField("ZONE CODE"),
+                  "ZONE NAME": findField("ZONE NAME"),
+                });
+              }
+            }
+          } else if (isDaWiseUnpaid) {
+            for (let i = 0; i < rawRows.length; i++) {
+              const r = rawRows[i];
+              let clean = {};
+              Object.keys(r).forEach((k) => {
+                if (k) clean[k.trim()] = (r[k] || "").toString().trim();
+              });
+
+              const daCombined = findFirstValue(clean, [
+                "DA ID/Name",
+                "DA Id/Name",
+                "DA ID / Name",
+                "DA ID-Name",
+              ]);
+              const repCombined = findFirstValue(clean, [
+                "Rep ID/Name",
+                "Rep Id/Name",
+                "Rep ID / Name",
+                "Rep ID-Name",
+              ]);
+              const clientCombined = findFirstValue(clean, [
+                "Client ID/Name",
+                "Client Id/Name",
+                "Client ID / Name",
+                "Client ID-Name",
+              ]);
+              const routeValue = findFirstValue(clean, [
+                "Route Name",
+                "Route",
+                "Name Of Route",
+                "NAME OF ROUTE",
+                "ROUTE",
+              ]);
+
+              const da = splitCombinedColumn(daCombined);
+              const rep = splitCombinedColumn(repCombined);
+              const client = splitCombinedColumn(clientCombined);
+
+              const paymentMode = findFirstValue(clean, [
+                "Payment Mode",
+                "PAYMENT MODE",
+              ]);
+              const dateValue = findFirstValue(clean, ["Date", "DATE"]);
+              const categoryValue = findFirstValue(clean, [
+                "Category Name",
+                "Category",
+                "CATEGORY",
+              ]);
+              const allocationId = findFirstValue(clean, [
+                "Allocation ID",
+                "Allocation Id",
+                "ALLOCATION ID",
+              ]);
+              const invoiceNo = findFirstValue(clean, [
+                "Invoice No",
+                "Invoice No.",
+                "INVOICE NO",
+              ]);
+              const totalAmount = findFirstValue(clean, [
+                "Total Amount",
+                "Amount",
+                "TOTAL AMOUNT",
+              ]);
+              const totalOs = findFirstValue(clean, [
+                "Total OS",
+                "Total Outstanding",
+                "OUTSTANDING",
+              ]);
+
+              const hasAnyData =
+                da.id ||
+                da.name ||
+                rep.id ||
+                rep.name ||
+                client.id ||
+                client.name ||
+                routeValue ||
+                paymentMode ||
+                dateValue ||
+                categoryValue ||
+                allocationId ||
+                invoiceNo ||
+                totalAmount ||
+                totalOs;
+              if (hasAnyData) {
+                rows.push({
+                  "DA ID/Name": daCombined,
+                  "Rep ID/Name": repCombined,
+                  "Client ID/Name": clientCombined,
+                  "DA ID": da.id,
+                  "DA Name": da.name,
+                  "Rep ID": rep.id,
+                  "Rep Name": rep.name,
+                  "Client ID": client.id,
+                  "Client Name": client.name,
+                  "Route Name": routeValue,
+                  "Payment Mode": paymentMode,
+                  Date: dateValue,
+                  "Category Name": categoryValue,
+                  "Allocation ID": allocationId,
+                  "Invoice No": invoiceNo,
+                  "Total Amount": totalAmount,
+                  "Total OS": totalOs,
+                  CATEGORY: categoryValue,
+                  Division: division,
+                });
+              }
+            }
+          } else {
+            for (let i = 0; i < rawRows.length; i++) {
+              let r = rawRows[i];
+              let clean = {};
+
+              Object.keys(r).forEach((k) => {
+                if (k) clean[k.trim()] = (r[k] || "").toString().trim();
+              });
+
+              let finalCode = "";
+              let finalName = "";
+
+              if (
+                clean["Client ID"] !== undefined ||
+                clean["Client Id"] !== undefined
+              ) {
+                finalCode = (
+                  clean["Client ID"] ||
+                  clean["Client Id"] ||
+                  clean["Code"] ||
+                  ""
+                ).trim();
+                finalName = (
+                  clean["Name"] ||
+                  clean["Chemist Name"] ||
+                  ""
+                ).trim();
+              } else {
+                let combinedField =
+                  clean["Chemist ID/Name"] ||
+                  clean["Chemist Name/ID"] ||
+                  clean["Chemist Name"] ||
+                  Object.values(clean)[0] ||
+                  "";
+                finalCode = clean["Code"] || "";
+
+                if (combinedField && combinedField.includes("|")) {
+                  const parts = combinedField.split("|");
+                  finalCode = parts[0].trim();
+                  finalName = parts[1].trim();
+                } else if (combinedField) {
+                  const match =
+                    combinedField.match(/^(\d+)(?:\s*[\-\s\_]\s*)(.*)$/) ||
+                    combinedField.match(/^(\d+)\s+(.*)$/);
+                  if (match) {
+                    finalCode = match[1].trim();
+                    finalName = match[2].trim();
+                  } else {
+                    finalName = combinedField;
+                  }
+                }
+              }
+
+              if (finalCode && finalName) {
+                rows.push({
+                  Code: finalCode,
+                  "Chemist Name": finalName,
+                  Division: division,
+                  "NAME OF ROUTE":
+                    clean["Name Of Rute"] ||
+                    clean["Name Of Route"] ||
+                    clean["NAME OF ROUTE"] ||
+                    clean["Route"] ||
+                    "",
+                  ADRESS:
+                    clean["Address"] ||
+                    clean["ADRESS"] ||
+                    clean["ADDRESS"] ||
+                    "",
+                  "TR CODE":
+                    clean["Territory ID"] ||
+                    clean["TR CODE"] ||
+                    clean["Tr Code"] ||
+                    "",
+                  "TR NAME":
+                    clean["Territory Name"] ||
+                    clean["TR NAME"] ||
+                    clean["Tr Name"] ||
+                    "",
+                  CATEGORY: clean["Category Name"] || clean["CATEGORY"] || "",
+                  "Total Amount": clean["Total Amount"] || "",
+                  "Total OS": clean["Total OS"] || "",
+                });
+              }
+            }
+          }
+
+          if (!rows.length) {
+            showError(
+              "No IDs or names found in the CSV. Please check the column format.",
+            );
+            return;
+          }
+
+          log(`Filtered records: ${rows.length}`);
+          progressWrap.style.display = "block";
+
+          // ==================== SMART AUTO-FILL LOGIC ====================
+          if (
+            targetDb === "Chemist_Wise_Unpaid" ||
+            targetDb === "DA_Wise_Unpaid"
+          ) {
+            log("Searching for chemist information in the master list...");
+
+            // Chemist_Wise_Unpaid-এ 'Code' দিয়ে লুকআপ হয়, DA_Wise_Unpaid-এ 'Client ID' দিয়ে —
+            // দুটোই CHEMIST LIST মাস্টার ডাটার বিপরীতে মিলানো হয়
+            const lookupCodeField =
+              targetDb === "DA_Wise_Unpaid" ? "Client ID" : "Code";
+
+            const LOOKUP_BATCH = 20;
+            let notFoundCount = 0;
+
+            for (let i = 0; i < rows.length; i += LOOKUP_BATCH) {
+              const chunk = rows.slice(i, i + LOOKUP_BATCH);
+
+              await Promise.all(
+                chunk.map(async (row) => {
+                  const code = row[lookupCodeField]?.trim();
+                  if (!code) return;
+
+                  try {
+                    const querySnap = await db
+                      .collection(`Chemist_List/${division}/clients`)
+                      .where("Code", "==", code)
+                      .limit(1)
+                      .get();
+
+                    if (!querySnap.empty) {
+                      const masterData = querySnap.docs[0].data();
+                      const routeName =
+                        masterData["NAME OF ROUTE"] ||
+                        masterData["Route"] ||
+                        "";
+                      if (targetDb === "DA_Wise_Unpaid") {
+                        row["Route Name"] = row["Route Name"] || routeName;
+                      } else {
+                        row["NAME OF ROUTE"] = routeName;
+                        row["ADRESS"] =
+                          masterData["ADRESS"] || masterData["Address"] || "";
+                        row["TR CODE"] =
+                          masterData["TR CODE"] || masterData["Tr Code"] || "";
+                        row["TR NAME"] =
+                          masterData["TR NAME"] || masterData["Tr Name"] || "";
+                      }
+                    } else {
+                      notFoundCount++;
+                      log(`Warning: ID ${code} not found in the master list.`);
+                    }
+                  } catch (e) {
+                    console.error(`Error fetching ID ${code}:`, e);
+                    log(`Error: Failed to find ID ${code}.`);
+                  }
+                }),
+              );
+
+              const doneSoFar = Math.min(i + LOOKUP_BATCH, rows.length);
+              const lookupPct = Math.round((doneSoFar / rows.length) * 40);
+              barFill.style.width = lookupPct + "%";
+              progressText.textContent = `মিলানো হচ্ছে: ${doneSoFar} / ${rows.length}`;
+            }
+
+            log(`Not found: ${notFoundCount} `);
+          }
+
+          // ==================== টার্গেট রেফারেন্স নির্ধারণ ====================
+          let mode;
+          let targetCollectionRef = null;
+          let displayPath = "";
+          let rtdb = null;
+          let rtdbRootPath = "";
+
+          if (
+            targetDb === "RTDB_Route_Update" ||
+            targetDb === "RTDB_Employee_List"
+          ) {
+            mode = "rtdb";
+            rtdb = firebase.database(app);
+            rtdbRootPath =
+              targetDb === "RTDB_Route_Update"
+                ? `Rute_Name`
+                : `Employee_List/${employeeCategory}`;
+          } else {
+            mode = "firestore";
+            displayPath =
+              targetDb === "Chemist_Wise_Unpaid"
+                ? `DCC_UNPAID/${division}/${yearStr}/${monthStr}/${formattedDateStr}`
+                : targetDb === "DA_Wise_Unpaid"
+                  ? `DA_UNPAID/${division}/${yearStr}/${monthStr}/${formattedDateStr}`
+                  : `Chemist_List/${division}/clients`;
+            targetCollectionRef = db.collection(displayPath);
+          }
+
+          // ==================== EXISTENCE CHECK + ROUTE LIST (Route ড্রপডাউনের জন্য) ====================
+          log("Checking existence...");
+          const [existsMap] = await Promise.all([
+            mode === "firestore"
+              ? checkExistenceFirestore(
+                  targetCollectionRef,
+                  rows,
+                  (done, total) => {
+                    const pct = 40 + Math.round((done / total) * 40);
+                    barFill.style.width = pct + "%";
+                    progressText.textContent = `Checking: ${done} / ${total}`;
+                  },
+                  isRouteUpdate,
+                  isEmployeeList,
+                  isDaWiseUnpaid,
+                )
+              : checkExistenceRTDB(
+                  rtdb,
+                  rtdbRootPath,
+                  rows,
+                  (done, total) => {
+                    const pct = 40 + Math.round((done / total) * 40);
+                    barFill.style.width = pct + "%";
+                    progressText.textContent = `Checking: ${done} / ${total}`;
+                  },
+                  isRouteUpdate,
+                  isEmployeeList,
+                ),
+            // Route Update নিজেই রুট লিস্ট তৈরি করছে, Employee List-এ রুট ড্রপডাউন নেই — শুধু এই দুটোতে রুট লিস্ট আনার দরকার নাই
+            isRouteUpdate || isEmployeeList
+              ? Promise.resolve([])
+              : fetchRouteList().then((list) => {
+                  routeOptionsList = list;
+                }),
+          ]);
+
+          const newRows = [];
+          const existingRows = [];
+          rows.forEach((row) => {
+            const docId = buildDocId(
+              row,
+              isRouteUpdate,
+              isEmployeeList,
+              isDaWiseUnpaid,
+            );
+            if (existsMap[docId]) existingRows.push(row);
+            else newRows.push(row);
+          });
+
+          log(
+            `New records: ${newRows.length}। Existing records: ${existingRows.length}।`,
+          );
+          barFill.style.width = "80%";
+
+          pendingState = {
+            targetDb,
+            division,
+            employeeCategory,
+            isRouteUpdate,
+            isEmployeeList,
+            isDaWiseUnpaid,
+            mode,
+            targetCollectionRef,
+            displayPath,
+            rtdb,
+            rtdbRootPath,
+            newRows,
+            existingRows,
+          };
+
+          newCountEl.textContent = newRows.length;
+          existingCountEl.textContent = existingRows.length;
+
+          if (newRows.length > 0) {
+            renderPreviewTable(
+              newRows,
+              isRouteUpdate,
+              isEmployeeList,
+              isDaWiseUnpaid,
+            );
+            previewWrap.style.display = "block";
+            previewInfoLineEl.innerHTML =
+              targetDb === "Chemist_List"
+                ? `নিচের টেবিলে শুধু <strong>নতুন</strong> রেকর্ডগুলো দেখানো হচ্ছে — এগুলো প্রয়োজনে এডিট করে নিন। আগে থেকেই থাকা <span id="existingCount">${existingRows.length}</span>  রেকর্ড এখানে দেখানো হচ্ছে না এবং Confirm করলেও সেগুলো স্পর্শ করা হবে না — শুধু এই নতুন রেকর্ডগুলোই সেভ হবে।`
+                : `নিচের টেবিলে শুধু <strong>নতুন</strong> রেকর্ডগুলো দেখানো হচ্ছে — এগুলো প্রয়োজনে এডিট করে নিন। আগে থেকেই থাকা <span id="existingCount">${existingRows.length}</span> রেকর্ড এখানে দেখানো হচ্ছে না, সেগুলো Confirm করলে ব্যাকগ্রাউন্ডে স্বয়ংক্রিয়ভাবে আপডেট (মার্জ) হয়ে যাবে।`;
+            log(
+              'Preview table ready. Please review and click "Confirm & Upload" to proceed.',
+            );
+            barFill.style.width = "80%";
+            progressText.textContent = `Confirming...`;
+          } else if (targetDb === "Chemist_List") {
+            log(
+              "No new records — existing records in CHEMIST LIST will remain unchanged, no re-upload will occur.",
+            );
+            barFill.style.width = "100%";
+            progressText.textContent = `0 / 0`;
+            successBox.style.display = "block";
+            successBox.textContent =
+              "No new records found — nothing to upload to CHEMIST LIST.";
+            pendingState = null;
+          } else {
+            log(
+              "No new records — only existing records will be updated. Uploading...",
+            );
+            await performUpload(existingRows, pendingState);
+            pendingState = null;
+          }
+        } catch (err) {
+          console.error(err);
+          showError(
+            "Upload failed: " +
+              (err && err.message ? err.message : String(err)),
+          );
+        } finally {
+          uploadBtn.disabled = false;
+          uploadBtn.textContent = "Check Now";
+        }
+      });
+
+      // ==================== ধাপ ২: Confirm করে আসল আপলোড ====================
+      confirmUploadBtn.addEventListener("click", async () => {
+        if (!pendingState) return;
+
+        clearMessages();
+        const editedNewRows = readEditedNewRows(pendingState.newRows);
+
+        const routeFieldName = pendingState.isRouteUpdate
+          ? "NAME"
+          : "NAME OF ROUTE";
+        const emptyRouteIndexes = [];
+        if (
+          !pendingState.isEmployeeList &&
+          !pendingState.isRouteUpdate &&
+          !pendingState.isDaWiseUnpaid
+        ) {
+          editedNewRows.forEach((row, idx) => {
+            if (!row[routeFieldName] || !row[routeFieldName].trim())
+              emptyRouteIndexes.push(idx);
+          });
+        }
+
+        if (emptyRouteIndexes.length > 0) {
+          showError(
+            `${emptyRouteIndexes.length} records have no route selected. Please select a route for all records before uploading.`,
+          );
+
+          const routeFieldEls = previewBody.querySelectorAll(
+            `[data-field="${routeFieldName}"]`,
+          );
+          routeFieldEls.forEach((el) => (el.style.border = ""));
+          routeFieldEls.forEach((el) => {
+            const idx = parseInt(el.dataset.rowIndex, 10);
+            if (emptyRouteIndexes.includes(idx)) {
+              el.style.border = "1.5px solid var(--error)";
+            }
+          });
+          return;
+        }
+
+        confirmUploadBtn.disabled = true;
+        cancelPreviewBtn.disabled = true;
+        confirmUploadBtn.textContent = "Uploading...";
+
+        try {
+          const allRows =
+            pendingState.targetDb === "Chemist_List"
+              ? editedNewRows
+              : pendingState.existingRows.concat(editedNewRows);
+          await performUpload(allRows, pendingState);
+          previewWrap.style.display = "none";
+          pendingState = null;
+        } catch (err) {
+          console.error(err);
+          showError(
+            "Upload failed: " +
+              (err && err.message ? err.message : String(err)),
+          );
+        } finally {
+          confirmUploadBtn.disabled = false;
+          cancelPreviewBtn.disabled = false;
+          confirmUploadBtn.textContent = "Confirm & Upload";
+        }
+      });
+
+      cancelPreviewBtn.addEventListener("click", () => {
+        previewWrap.style.display = "none";
+        pendingState = null;
+        log("Upload cancelled.");
+      });
+
+      // ==================== আসল আপলোড (Firestore ব্যাচ বা RTDB update) ====================
+      async function performUpload(allRows, state) {
+        const {
+          mode,
+          targetCollectionRef,
+          displayPath,
+          rtdb,
+          rtdbRootPath,
+          targetDb,
+          division,
+          employeeCategory,
+          isRouteUpdate,
+          isEmployeeList,
+          isDaWiseUnpaid,
+        } = state;
+
+        progressWrap.style.display = "block";
+        clearMessages();
+
+        if (!allRows.length) {
+          successBox.style.display = "block";
+          successBox.textContent = "No records to upload.";
+          return;
+        }
+
+        if (mode === "rtdb") {
+          const updateObject = {};
+          allRows.forEach((row) => {
+            const docId = buildDocId(row, isRouteUpdate, isEmployeeList);
+            updateObject[docId] = row;
+          });
+
+          if (targetDb === "RTDB_Route_Update") {
+            // Rute_Name পাথের নিচেই সরাসরি প্রতিটা রুট এন্ট্রি বসে, তাই এখানে আলাদা মেটাডাটা কী লেখা হয় না
+            await rtdb.ref(rtdbRootPath).update(updateObject);
+          } else {
+            updateObject["category"] = employeeCategory;
+            updateObject["total_records"] = allRows.length;
+            await rtdb.ref(rtdbRootPath).update(updateObject);
+          }
+
+          barFill.style.width = "100%";
+          progressText.textContent = `${allRows.length} / ${allRows.length}`;
+          successBox.style.display = "block";
+          successBox.textContent = `✅ Successfully saved to RTDB! (Total ${allRows.length} records)`;
+        } else {
+          const BATCH_SIZE = 300;
+          let uploaded = 0;
+
+          for (let i = 0; i < allRows.length; i += BATCH_SIZE) {
+            const chunk = allRows.slice(i, i + BATCH_SIZE);
+            const batch = db.batch();
+
+            chunk.forEach((row) => {
+              const docId = buildDocId(row, false, false, isDaWiseUnpaid);
+              const docRef = targetCollectionRef.doc(docId);
+              batch.set(docRef, row, { merge: true });
+            });
+
+            await batch.commit();
+            uploaded += chunk.length;
+
+            const pct = Math.round((uploaded / allRows.length) * 100);
+            barFill.style.width = pct + "%";
+            progressText.textContent = `${uploaded} / ${allRows.length}`;
+            log(`Uploading to Firestore: ${uploaded}/${allRows.length}`);
+          }
+
+          successBox.style.display = "block";
+          successBox.textContent = `✅ Successfully uploaded data to '${displayPath}'! (Total ${allRows.length} records)`;
+        }
+      }
+    </script>
+  </body>
 </html>
